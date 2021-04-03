@@ -1,0 +1,10 @@
+feed {
+    id { node_name: "pi/ob" }
+	shape { 
+		dim { size: 1}
+		dim { size: 6}
+	}
+}
+fetch {
+	id { node_name: "pi/pol/final/BiasAdd"}
+}
