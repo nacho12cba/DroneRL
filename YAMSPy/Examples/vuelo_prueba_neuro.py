@@ -56,7 +56,7 @@ class HiloComandos(threading.Thread):
                 self.CMDS['throttle'] = 1270
                 print('Flying up')
             if(now>15 and now<25):
-                self.CMDS['yaw'] = 1600
+                self.CMDS['yaw'] = 1800
                 self.CMDS['throttle'] = 1290
                 print('hovering')
             # if(now>16 and now<17):

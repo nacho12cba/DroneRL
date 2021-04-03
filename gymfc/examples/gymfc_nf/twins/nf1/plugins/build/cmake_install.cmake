@@ -1,4 +1,4 @@
-# Install script for directory: /home/puriqgpu/DroneRl-workspace/gymfc/examples/gymfc_nf/twins/nf1/plugins/gymfc-aircraft-plugins
+# Install script for directory: /home/puriqgpu/DroneRL/gymfc/examples/gymfc_nf/twins/nf1/plugins/gymfc-aircraft-plugins
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -45,5 +45,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/home/puriqgpu/DroneRl-workspace/gymfc/examples/gymfc_nf/twins/nf1/plugins/build/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/home/puriqgpu/DroneRL/gymfc/examples/gymfc_nf/twins/nf1/plugins/build/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

@@ -6,7 +6,7 @@
 
 #IncludeRegexTransform: 
 
-/home/puriqgpu/DroneRl-workspace/gymfc/examples/gymfc_nf/twins/nf1/plugins/gymfc-aircraft-plugins/include/common.h
+/home/puriqgpu/DroneRL/gymfc/examples/gymfc_nf/twins/nf1/plugins/gymfc-aircraft-plugins/include/common.h
 tinyxml.h
 -
 Eigen/Dense
@@ -16,9 +16,9 @@ gazebo/gazebo.hh
 ignition/math.hh
 -
 
-/home/puriqgpu/DroneRl-workspace/gymfc/examples/gymfc_nf/twins/nf1/plugins/gymfc-aircraft-plugins/src/gazebo_imu_plugin.cpp
+/home/puriqgpu/DroneRL/gymfc/examples/gymfc_nf/twins/nf1/plugins/gymfc-aircraft-plugins/src/gazebo_imu_plugin.cpp
 gazebo_imu_plugin.h
-/home/puriqgpu/DroneRl-workspace/gymfc/examples/gymfc_nf/twins/nf1/plugins/gymfc-aircraft-plugins/src/gazebo_imu_plugin.h
+/home/puriqgpu/DroneRL/gymfc/examples/gymfc_nf/twins/nf1/plugins/gymfc-aircraft-plugins/src/gazebo_imu_plugin.h
 chrono
 -
 cmath
@@ -30,13 +30,13 @@ stdio.h
 boost/bind.hpp
 -
 
-/home/puriqgpu/DroneRl-workspace/gymfc/examples/gymfc_nf/twins/nf1/plugins/gymfc-aircraft-plugins/src/gazebo_imu_plugin.h
+/home/puriqgpu/DroneRL/gymfc/examples/gymfc_nf/twins/nf1/plugins/gymfc-aircraft-plugins/src/gazebo_imu_plugin.h
 random
 -
 Eigen/Core
 -
 Imu.pb.h
-/home/puriqgpu/DroneRl-workspace/gymfc/examples/gymfc_nf/twins/nf1/plugins/gymfc-aircraft-plugins/src/Imu.pb.h
+/home/puriqgpu/DroneRL/gymfc/examples/gymfc_nf/twins/nf1/plugins/gymfc-aircraft-plugins/src/Imu.pb.h
 gazebo/common/common.hh
 -
 gazebo/common/Plugin.hh
@@ -48,11 +48,11 @@ gazebo/physics/physics.hh
 ignition/math.hh
 -
 gazebo/transport/transport.hh
-/home/puriqgpu/DroneRl-workspace/gymfc/examples/gymfc_nf/twins/nf1/plugins/gymfc-aircraft-plugins/src/gazebo/transport/transport.hh
+/home/puriqgpu/DroneRL/gymfc/examples/gymfc_nf/twins/nf1/plugins/gymfc-aircraft-plugins/src/gazebo/transport/transport.hh
 gazebo/msgs/msgs.hh
-/home/puriqgpu/DroneRl-workspace/gymfc/examples/gymfc_nf/twins/nf1/plugins/gymfc-aircraft-plugins/src/gazebo/msgs/msgs.hh
+/home/puriqgpu/DroneRL/gymfc/examples/gymfc_nf/twins/nf1/plugins/gymfc-aircraft-plugins/src/gazebo/msgs/msgs.hh
 common.h
-/home/puriqgpu/DroneRl-workspace/gymfc/examples/gymfc_nf/twins/nf1/plugins/gymfc-aircraft-plugins/src/common.h
+/home/puriqgpu/DroneRL/gymfc/examples/gymfc_nf/twins/nf1/plugins/gymfc-aircraft-plugins/src/common.h
 
 /usr/include/eigen3/Eigen/Cholesky
 Core

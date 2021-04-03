@@ -6,7 +6,7 @@
 
 #IncludeRegexTransform: 
 
-/home/puriqgpu/DroneRl-workspace/gymfc/examples/gymfc_nf/twins/nf1/plugins/gymfc-aircraft-plugins/include/common.h
+/home/puriqgpu/DroneRL/gymfc/examples/gymfc_nf/twins/nf1/plugins/gymfc-aircraft-plugins/include/common.h
 tinyxml.h
 -
 Eigen/Dense
@@ -16,11 +16,11 @@ gazebo/gazebo.hh
 ignition/math.hh
 -
 
-/home/puriqgpu/DroneRl-workspace/gymfc/examples/gymfc_nf/twins/nf1/plugins/gymfc-aircraft-plugins/include/rotors_model/motor_model.hpp
+/home/puriqgpu/DroneRL/gymfc/examples/gymfc_nf/twins/nf1/plugins/gymfc-aircraft-plugins/include/rotors_model/motor_model.hpp
 Eigen/Eigen
 -
 
-/home/puriqgpu/DroneRl-workspace/gymfc/examples/gymfc_nf/twins/nf1/plugins/gymfc-aircraft-plugins/src/gazebo_motor_model.h
+/home/puriqgpu/DroneRL/gymfc/examples/gymfc_nf/twins/nf1/plugins/gymfc-aircraft-plugins/src/gazebo_motor_model.h
 stdio.h
 -
 boost/bind.hpp
@@ -38,25 +38,25 @@ gazebo/common/Plugin.hh
 rotors_model/motor_model.hpp
 -
 gazebo/transport/transport.hh
-/home/puriqgpu/DroneRl-workspace/gymfc/examples/gymfc_nf/twins/nf1/plugins/gymfc-aircraft-plugins/src/gazebo/transport/transport.hh
+/home/puriqgpu/DroneRL/gymfc/examples/gymfc_nf/twins/nf1/plugins/gymfc-aircraft-plugins/src/gazebo/transport/transport.hh
 gazebo/msgs/msgs.hh
-/home/puriqgpu/DroneRl-workspace/gymfc/examples/gymfc_nf/twins/nf1/plugins/gymfc-aircraft-plugins/src/gazebo/msgs/msgs.hh
+/home/puriqgpu/DroneRL/gymfc/examples/gymfc_nf/twins/nf1/plugins/gymfc-aircraft-plugins/src/gazebo/msgs/msgs.hh
 MotorCommand.pb.h
-/home/puriqgpu/DroneRl-workspace/gymfc/examples/gymfc_nf/twins/nf1/plugins/gymfc-aircraft-plugins/src/MotorCommand.pb.h
+/home/puriqgpu/DroneRL/gymfc/examples/gymfc_nf/twins/nf1/plugins/gymfc-aircraft-plugins/src/MotorCommand.pb.h
 EscSensor.pb.h
-/home/puriqgpu/DroneRl-workspace/gymfc/examples/gymfc_nf/twins/nf1/plugins/gymfc-aircraft-plugins/src/EscSensor.pb.h
+/home/puriqgpu/DroneRL/gymfc/examples/gymfc_nf/twins/nf1/plugins/gymfc-aircraft-plugins/src/EscSensor.pb.h
 MotorSpeed.pb.h
-/home/puriqgpu/DroneRl-workspace/gymfc/examples/gymfc_nf/twins/nf1/plugins/gymfc-aircraft-plugins/src/MotorSpeed.pb.h
+/home/puriqgpu/DroneRL/gymfc/examples/gymfc_nf/twins/nf1/plugins/gymfc-aircraft-plugins/src/MotorSpeed.pb.h
 Float.pb.h
-/home/puriqgpu/DroneRl-workspace/gymfc/examples/gymfc_nf/twins/nf1/plugins/gymfc-aircraft-plugins/src/Float.pb.h
+/home/puriqgpu/DroneRL/gymfc/examples/gymfc_nf/twins/nf1/plugins/gymfc-aircraft-plugins/src/Float.pb.h
 common.h
-/home/puriqgpu/DroneRl-workspace/gymfc/examples/gymfc_nf/twins/nf1/plugins/gymfc-aircraft-plugins/src/common.h
+/home/puriqgpu/DroneRL/gymfc/examples/gymfc_nf/twins/nf1/plugins/gymfc-aircraft-plugins/src/common.h
 
-/home/puriqgpu/DroneRl-workspace/gymfc/examples/gymfc_nf/twins/nf1/plugins/gymfc-aircraft-plugins/src/gazebo_motor_model_new.cpp
+/home/puriqgpu/DroneRL/gymfc/examples/gymfc_nf/twins/nf1/plugins/gymfc-aircraft-plugins/src/gazebo_motor_model_new.cpp
 gazebo_motor_model.h
-/home/puriqgpu/DroneRl-workspace/gymfc/examples/gymfc_nf/twins/nf1/plugins/gymfc-aircraft-plugins/src/gazebo_motor_model.h
+/home/puriqgpu/DroneRL/gymfc/examples/gymfc_nf/twins/nf1/plugins/gymfc-aircraft-plugins/src/gazebo_motor_model.h
 EscSensor.pb.h
-/home/puriqgpu/DroneRl-workspace/gymfc/examples/gymfc_nf/twins/nf1/plugins/gymfc-aircraft-plugins/src/EscSensor.pb.h
+/home/puriqgpu/DroneRL/gymfc/examples/gymfc_nf/twins/nf1/plugins/gymfc-aircraft-plugins/src/EscSensor.pb.h
 ignition/math.hh
 -
 

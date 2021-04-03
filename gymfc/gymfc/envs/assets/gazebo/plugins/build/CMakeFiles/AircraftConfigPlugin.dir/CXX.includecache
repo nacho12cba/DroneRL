@@ -6,7 +6,7 @@
 
 #IncludeRegexTransform: 
 
-/home/puriqgpu/DroneRl-workspace/gymfc/gymfc/envs/assets/gazebo/plugins/AircraftConfigPlugin.cpp
+/home/puriqgpu/DroneRL/gymfc/gymfc/envs/assets/gazebo/plugins/AircraftConfigPlugin.cpp
 gazebo/gazebo.hh
 -
 
