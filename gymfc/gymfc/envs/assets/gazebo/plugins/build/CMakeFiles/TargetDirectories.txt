@@ -1,0 +1,7 @@
+/home/puriqgpu/DroneRl-workspace/gymfc/gymfc/envs/assets/gazebo/plugins/build/CMakeFiles/rebuild_cache.dir
+/home/puriqgpu/DroneRl-workspace/gymfc/gymfc/envs/assets/gazebo/plugins/build/CMakeFiles/control_msgs.dir
+/home/puriqgpu/DroneRl-workspace/gymfc/gymfc/envs/assets/gazebo/plugins/build/CMakeFiles/sensor_msgs.dir
+/home/puriqgpu/DroneRl-workspace/gymfc/gymfc/envs/assets/gazebo/plugins/build/CMakeFiles/FlightControllerPlugin.dir
+/home/puriqgpu/DroneRl-workspace/gymfc/gymfc/envs/assets/gazebo/plugins/build/CMakeFiles/AircraftConfigPlugin.dir
+/home/puriqgpu/DroneRl-workspace/gymfc/gymfc/envs/assets/gazebo/plugins/build/CMakeFiles/FlightControllerPluginArducopter.dir
+/home/puriqgpu/DroneRl-workspace/gymfc/gymfc/envs/assets/gazebo/plugins/build/CMakeFiles/edit_cache.dir
