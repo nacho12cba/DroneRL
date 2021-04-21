@@ -48,10 +48,10 @@
         </inertial>
         
         <collision name='frame_collision'>
-            <pose>0 0 -0.0185 0 0 0</pose>
+            <pose>0 0 0.037 0 0 1.5708</pose>
             <geometry>
               <box>
-                <size>0.47 0.47 0.001</size>
+                <size>0.001 0.001 0.001</size>
               </box>
             </geometry>
         </collision>
@@ -90,10 +90,10 @@
       </inertial>
       
       <collision name='battery_collision'>
-        <pose>0 0 -0.037 0 -0 0</pose>
+        <pose>0 0 0 0 -0 0</pose>
         <geometry>
             <box>                 
-                <size>0.035 0.073 0.037</size>
+                <size>1 1 0.01</size>
             </box>
         </geometry>
       </collision>
@@ -140,7 +140,7 @@
       </inertial>
       
       <collision name="motor_1_collision">
-        <pose>0 0 0 0 -0 0</pose>
+        <pose>-0.0805 -0.07 0.042 0 -0 0</pose>
         <geometry>
           <cylinder>
             <length>0.005</length>
@@ -193,7 +193,7 @@
       </inertial>
       
       <collision name="motor_2_collision">
-        <pose>0 0 0 0 -0 0</pose>
+        <pose>0.0805 -0.07 0.042 0 -0 0</pose>
         <geometry>
           <cylinder>
             <length>0.005</length>
@@ -246,7 +246,7 @@
       </inertial>
       
       <collision name="motor_3_collision">
-        <pose>0 0 0 0 -0 0</pose>
+        <pose>-0.0805 0.07 0.042 0 -0 0</pose>
         <geometry>
           <cylinder>
             <length>0.005</length>
@@ -297,7 +297,7 @@
       </inertial>
       
       <collision name="motor_4_collision">
-        <pose>0 0 0 0 -0 0</pose>
+        <pose>0.0805 0.07  0.042 0 -0 0</pose>
         <geometry>
           <cylinder>
             <length>0.005</length>
@@ -351,7 +351,7 @@
       </inertial>
       
       <collision name="prop_1_collision">
-        <pose>0 0 0 1.57 -0 0</pose>
+        <pose>-0.0805 -0.07  0.058 0 -0 0</pose>
         <geometry>
           <cylinder>
             <length>0.005</length>
@@ -405,7 +405,7 @@
         <use_parent_model_frame>1</use_parent_model_frame>
       </axis>
     </joint>
-    <plugin name="prop_1_motor_model" filename='libgazebo_motor_model_new.so'>
+    <plugin name="prop_1_motor_model" filename='libgazebo_motor_model.so'>
       <robotNamespace></robotNamespace>
       <jointName>prop_1_joint</jointName>
       <linkName>prop_1</linkName>
@@ -452,7 +452,7 @@
       </inertial>
       
       <collision name="prop_2_collision">
-        <pose>0 0 0 1.57 -0 0</pose>
+        <pose>0.0805 -0.07 0.058 0 -0 0</pose>
         <geometry>
           <cylinder>
             <length>0.005</length>
@@ -506,7 +506,7 @@
         <use_parent_model_frame>1</use_parent_model_frame>
       </axis>
     </joint>
-    <plugin name="prop_2_motor_model" filename='libgazebo_motor_model_new.so'>
+    <plugin name="prop_2_motor_model" filename='libgazebo_motor_model.so'>
       <robotNamespace></robotNamespace>
       <jointName>prop_2_joint</jointName>
       <linkName>prop_2</linkName>
@@ -553,7 +553,7 @@
       </inertial>
       
       <collision name="prop_3_collision">
-        <pose>0 0 0 1.57 -0 0</pose>
+        <pose>-0.0805 0.07  0.058 0 -0 0</pose>
         <geometry>
           <cylinder>
             <length>0.005</length>
@@ -607,7 +607,7 @@
         <use_parent_model_frame>1</use_parent_model_frame>
       </axis>
     </joint>
-    <plugin name="prop_3_motor_model" filename='libgazebo_motor_model_new.so'>
+    <plugin name="prop_3_motor_model" filename='libgazebo_motor_model.so'>
       <robotNamespace></robotNamespace>
       <jointName>prop_3_joint</jointName>
       <linkName>prop_3</linkName>
@@ -654,7 +654,7 @@
       </inertial>
       
       <collision name="prop_4_collision">
-        <pose>0 0 0 1.57 -0 0</pose>
+        <pose>0.0805 0.07 0.058 0 -0 0</pose>
         <geometry>
           <cylinder>
             <length>0.005</length>
@@ -708,7 +708,7 @@
         <use_parent_model_frame>1</use_parent_model_frame>
       </axis>
     </joint>
-    <plugin name="prop_4_motor_model" filename='libgazebo_motor_model_new.so'>
+    <plugin name="prop_4_motor_model" filename='libgazebo_motor_model.so'>
       <robotNamespace></robotNamespace>
       <jointName>prop_4_joint</jointName>
       <linkName>prop_4</linkName>
@@ -808,10 +808,10 @@
       </inertial>
       
       <collision name='fc_stack_collision'>
-        <pose>0 0 0.0095 0 -0 0</pose>
+        <pose>0 0 0.042 0 -0 0</pose>
         <geometry>
             <box>                 
-                <size>0.019 0.024 0.019</size>
+                <size>0.001 0.001 0.001</size>
             </box>
         </geometry>
         <surface>
