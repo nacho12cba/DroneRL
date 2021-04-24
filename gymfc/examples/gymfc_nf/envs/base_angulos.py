@@ -6,7 +6,7 @@ from gym.utils import seeding
 from gymfc.envs.fc_env import FlightControlEnv
 import time
 
-class BaseEnv(FlightControlEnv, gym.Env):
+class BaseEnvAngle(FlightControlEnv, gym.Env):
     def __init__(self, max_sim_time = 30, state_fn = None): 
         """ Create a base gymfc environment.
 
@@ -80,10 +80,15 @@ class BaseEnv(FlightControlEnv, gym.Env):
 
         # Interface with gymfc
         self.obs = self.step_sim(self.y)
-        self.angular_rate = (self.imu_angular_velocity_rpy.copy() + 
-            self.sample_noise(self))
-        self.true_error = self.angular_rate_sp - self.imu_angular_velocity_rpy
-        self.measured_error = self.angular_rate_sp - self.angular_rate
+
+        angle_rpy = self.quaternion_to_angles()
+        # self.angular_rate = (self.imu_angular_velocity_rpy.copy() + 
+        #     self.sample_noise(self))
+        # angles_with_noise = angle_rpy +self.sample_noise(self)
+        # self.true_error = self.angular_rate_sp - self.imu_angular_velocity_rpy
+        self.true_error = self.angle_sp - angle_rpy
+        # self.measured_error = self.angular_rate_sp - self.angular_rate
+        self.measured_error = self.angular_rate_sp - angle_rpy
 
         done = self.sim_time >= self.max_sim_time 
 
@@ -102,6 +107,27 @@ class BaseEnv(FlightControlEnv, gym.Env):
         if self.step_callback:
             self.step_callback(self, state, reward, done)
         return state, reward, done, {}
+
+    def quaternion_to_angles(self):
+        x = self.imu_orientation_quat[1]
+        y = self.imu_orientation_quat[2]
+        z = self.imu_orientation_quat[3]
+        w = self.imu_orientation_quat[0]
+        import math
+        t0 = +2.0 * (w * x + y * z)
+        t1 = +1.0 - 2.0 * (x * x + y * y)
+        X = math.degrees(math.atan2(t0, t1))
+
+        t2 = +2.0 * (w * y - z * x)
+        t2 = +1.0 if t2 > +1.0 else t2
+        t2 = -1.0 if t2 < -1.0 else t2
+        Y = math.degrees(math.asin(t2))
+
+        t3 = +2.0 * (w * z + x * y)
+        t4 = +1.0 - 2.0 * (y * y + z * z)
+        Z = math.degrees(math.atan2(t3, t4))
+
+        return [X, Y, Z]
 
     def action_to_control_signal(self, action, action_low, action_high, 
                                  y_low=0, y_high=1):
@@ -125,6 +151,8 @@ class BaseEnv(FlightControlEnv, gym.Env):
         self.angular_rate = np.zeros(3)
         # Initialize to some random velocity
         self.angular_rate_sp = np.zeros(3)
+
+        self.angle_sp = np.zeros(3)
 
         # Used for agent input and has the IMU noise applied as a method for
         # domain randomization.

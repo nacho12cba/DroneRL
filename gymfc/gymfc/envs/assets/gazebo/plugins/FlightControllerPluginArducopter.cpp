@@ -241,7 +241,7 @@ void FlightControllerPluginArducopter::Load(physics::WorldPtr _world, sdf::Eleme
 
   this->cmdPub = this->nodeHandle->Advertise<cmd_msgs::msgs::MotorCommand>(this->cmdPubTopic);
   // Force pause because we drive the simulation steps
-  // this->world->SetPaused(true);
+  this->world->SetPaused(true);
 
 
   this->callbackLoopThread = boost::thread( boost::bind( &FlightControllerPluginArducopter::LoopThread, this) );
@@ -499,18 +499,18 @@ void FlightControllerPluginArducopter::LoadDigitalTwin()
   // It appears the inserted model is not available in the world
   // right away, maybe due to the message passing that occurs?
   // For now poll until its there in the world
-  // unsigned int startModelCount = this->world->ModelCount();
-  // this->world->InsertModelSDF(*this->sdfElement);
-  // while (1)
-  // {
-  //   unsigned int modelCount = this->world->ModelCount();
-  //   if (modelCount >= startModelCount + 1)
-  //   {
-  //     break;
-  //   } else {
-  //     gazebo::common::Time::MSleep(100);
-  //   }
-  // }
+  unsigned int startModelCount = this->world->ModelCount();
+  this->world->InsertModelSDF(*this->sdfElement);
+  while (1)
+  {
+    unsigned int modelCount = this->world->ModelCount();
+    if (modelCount >= startModelCount + 1)
+    {
+      break;
+    } else {
+      gazebo::common::Time::MSleep(100);
+    }
+  }
 
   // start parsing model
   const std::string modelName = this->modelElement->Get<std::string>("name");
@@ -527,75 +527,75 @@ void FlightControllerPluginArducopter::LoadDigitalTwin()
 
 
 
-  // physics::ModelPtr supportModel = this->world->ModelByName(kTrainingRigModelName);
-  // if (!supportModel){
-  //   gzerr << "Could not find training rig model." << std::endl;
-  //   return;
-  // }
+  physics::ModelPtr supportModel = this->world->ModelByName(kTrainingRigModelName);
+  if (!supportModel){
+    gzerr << "Could not find training rig model." << std::endl;
+    return;
+  }
   
-  // gazebo::physics::LinkPtr centerOfThrustReferenceLink;
-  // centerOfThrustReferenceLink = FindLinkByName(model, this->centerOfThrustReferenceLinkName);
-  // if (!centerOfThrustReferenceLink){
-  //   gzerr << "Could not find the CoT link" << std::endl;
-  //   return;
-  // }
+  gazebo::physics::LinkPtr centerOfThrustReferenceLink;
+  centerOfThrustReferenceLink = FindLinkByName(model, this->centerOfThrustReferenceLinkName);
+  if (!centerOfThrustReferenceLink){
+    gzerr << "Could not find the CoT link" << std::endl;
+    return;
+  }
 
   
-  // gazebo::physics::LinkPtr batteryLink;
-  // batteryLink = FindLinkByName(model,"battery");
-  // if (this->world->Name().compare("default") != 0)
-  // {
-  //     gzdbg << "Using dyno, not linking aircraft to world" << std::endl;
-  //     model->Init();
-  //     return;
-  // }
-  // // Create the ball joint to attach the aircraft too
-  // gazebo::physics::JointPtr joint;
-  // joint = this->world->Physics()->CreateJoint("ball", supportModel);
-  // joint->SetName("ball_joint");
-  // joint->Attach(supportModel->GetLink("pivot"), centerOfThrustReferenceLink);
-  // this->ballJoint = joint;
+  gazebo::physics::LinkPtr batteryLink;
+  batteryLink = FindLinkByName(model,"battery");
+  if (this->world->Name().compare("default") != 0)
+  {
+      gzdbg << "Using dyno, not linking aircraft to world" << std::endl;
+      model->Init();
+      return;
+  }
+  // Create the ball joint to attach the aircraft too
+  gazebo::physics::JointPtr joint;
+  joint = this->world->Physics()->CreateJoint("ball", supportModel);
+  joint->SetName("ball_joint");
+  joint->Attach(supportModel->GetLink("pivot"), centerOfThrustReferenceLink);
+  this->ballJoint = joint;
 
-  // if (this->world->Physics()->GetType().compare("dart") == 0)
-  // {
-  //   // Discussed here https://www.reddit.com/r/robotics/comments/5a7xrl/bullet_vs_ode_to_simulate_robotic_arm/
+  if (this->world->Physics()->GetType().compare("dart") == 0)
+  {
+    // Discussed here https://www.reddit.com/r/robotics/comments/5a7xrl/bullet_vs_ode_to_simulate_robotic_arm/
 
-  //   // Do all the casting
-  //   dart::dynamics::SkeletonPtr aircraftSkeleton = boost::dynamic_pointer_cast<gazebo::physics::DARTModel>(model)->DARTSkeleton();
-  //   gazebo::physics::DARTModelPtr dartSupportModelPtr =   boost::dynamic_pointer_cast<gazebo::physics::DARTModel>(supportModel);
-  //   gazebo::physics::DARTJointPtr dartJoint = boost::dynamic_pointer_cast<gazebo::physics::DARTJoint>(joint);
-  //   gazebo::physics::DARTLinkPtr dartLink = boost::dynamic_pointer_cast<gazebo::physics::DARTLink>(centerOfThrustReferenceLink);
+    // Do all the casting
+    dart::dynamics::SkeletonPtr aircraftSkeleton = boost::dynamic_pointer_cast<gazebo::physics::DARTModel>(model)->DARTSkeleton();
+    gazebo::physics::DARTModelPtr dartSupportModelPtr =   boost::dynamic_pointer_cast<gazebo::physics::DARTModel>(supportModel);
+    gazebo::physics::DARTJointPtr dartJoint = boost::dynamic_pointer_cast<gazebo::physics::DARTJoint>(joint);
+    gazebo::physics::DARTLinkPtr dartLink = boost::dynamic_pointer_cast<gazebo::physics::DARTLink>(centerOfThrustReferenceLink);
 
-  //   //Do all this just to get the dark joint
-  //   std::shared_ptr<dart::dynamics::Joint::Properties> jointProperties = dartJoint->DARTProperties();
-  //   std::pair<dart::dynamics::Joint*, dart::dynamics::BodyNode*> pair;
-  //   dart::dynamics::BodyNode::AspectProperties properties("testbody");
-  //   pair =  aircraftSkeleton->createJointAndBodyNodePair<dart::dynamics::BallJoint, dart::dynamics::BodyNode>(
-  //       dartSupportModelPtr->DARTSkeleton()->getBodyNode("pivot"),
-  //       static_cast<const dart::dynamics::BallJoint::Properties&>(*jointProperties),
-  //       properties
-  //   );
-  //   dart::dynamics::Joint* newJoint = pair.first;
-  //   // XXX Cant initialize until SetDARTJoint called
-  //   dartJoint->SetDARTJoint(newJoint);
+    //Do all this just to get the dark joint
+    std::shared_ptr<dart::dynamics::Joint::Properties> jointProperties = dartJoint->DARTProperties();
+    std::pair<dart::dynamics::Joint*, dart::dynamics::BodyNode*> pair;
+    dart::dynamics::BodyNode::AspectProperties properties("testbody");
+    pair =  aircraftSkeleton->createJointAndBodyNodePair<dart::dynamics::BallJoint, dart::dynamics::BodyNode>(
+        dartSupportModelPtr->DARTSkeleton()->getBodyNode("pivot"),
+        static_cast<const dart::dynamics::BallJoint::Properties&>(*jointProperties),
+        properties
+    );
+    dart::dynamics::Joint* newJoint = pair.first;
+    // XXX Cant initialize until SetDARTJoint called
+    dartJoint->SetDARTJoint(newJoint);
 
-  //   // This is required to constrain the distance of the child link
-  //   // For some reason the Load implementation is is missing this 
-  //   Eigen::Vector3d location = Eigen::Vector3d(this->cot.X(), this->cot.Y(), this->cot.Z());
-  //   dart::constraint::BallJointConstraintPtr mBallConstraint;
-  //   gzdbg << "Setting link to center " << centerOfThrustReferenceLink->GetName() << std::endl;
-  //   mBallConstraint = std::make_shared<dart::constraint::BallJointConstraint>(aircraftSkeleton->getBodyNode(
-  //     centerOfThrustReferenceLink->GetName()), location);
-  //   dartLink->DARTWorld()->getConstraintSolver()->addConstraint(mBallConstraint);
-  // } 
-  // else 
-  // {
-  //   joint->Load(supportModel->GetLink("pivot"), centerOfThrustReferenceLink, 
-  //     ignition::math::Pose3d(this->cot.X(), this->cot.Y(), this->cot.Z(), 0, 0, 0));
+    // This is required to constrain the distance of the child link
+    // For some reason the Load implementation is is missing this 
+    Eigen::Vector3d location = Eigen::Vector3d(this->cot.X(), this->cot.Y(), this->cot.Z());
+    dart::constraint::BallJointConstraintPtr mBallConstraint;
+    gzdbg << "Setting link to center " << centerOfThrustReferenceLink->GetName() << std::endl;
+    mBallConstraint = std::make_shared<dart::constraint::BallJointConstraint>(aircraftSkeleton->getBodyNode(
+      centerOfThrustReferenceLink->GetName()), location);
+    dartLink->DARTWorld()->getConstraintSolver()->addConstraint(mBallConstraint);
+  } 
+  else 
+  {
+    joint->Load(supportModel->GetLink("pivot"), centerOfThrustReferenceLink, 
+      ignition::math::Pose3d(this->cot.X(), this->cot.Y(), this->cot.Z(), 0, 0, 0));
 
-  // }
+  }
 
-  // joint->Init();
+  joint->Init();
   
   // This is actually great because we've removed the ground plane so there is no possible collision
   gzdbg << "Aircraft model fixed to world\n";
@@ -652,34 +652,41 @@ void FlightControllerPluginArducopter::FlushSensors()
 void FlightControllerPluginArducopter::LoopThread()
 {
 
-
   this->LoadDigitalTwin();
 	while (1){
 
 		bool ac_received = this->ReceiveMotorCommand();
         //ignition::math::Vector3d f = this->world->ModelByName(kTrainingRigModelName)->GetLink("pivot")->RelativeForce();
 
+    if(!ac_received){
+      if (this->arduCopterOnline){
+        this->SendState();
+        gzdbg << "Arducopter conectado sin datos" << std::endl;
+      }
+    }
+    else{
     //  gzdbg << "Received?" << ac_received << std::endl;
-		if (this->arduCopterOnline){
-      // this->ballJointForce = this->ballJoint->GetForceTorque(0).body1Force;
+		// if (this->arduCopterOnline){
     this->ResetCallbackCount();
-    //gzdbg << "Callback count " << this->sensorCallbackCount << std::endl;
-    //Forward the motor commands from the agent to each motor
-    cmd_msgs::msgs::MotorCommand cmd;
-    gzdbg << "Sending motor commands to digital twin" << std::endl;
-    for (unsigned int i = 0; i < this->numActuators; i++)
-    {
-      gzdbg << i << "=" << this->action.motor(i) << std::endl;
-      cmd.add_motor(this->action.motor(i));
+    gzdbg << "Callback count " << this->sensorCallbackCount << std::endl;
+      //Forward the motor commands from the agent to each motor
+      cmd_msgs::msgs::MotorCommand cmd;
+      // gzdbg << "Sending motor commands to digital twin" << std::endl;
+      for (unsigned int i = 0; i < this->numActuators; i++)
+      {
+        cmd.add_motor(this->action.motor(i));
+      }
+      // gzdbg << "Publishing motor command\n";
+      this->cmdPub->Publish(cmd);
+      this->world->Step(1);
+      this->SendState();
+      // gzdbg << "Done publishing motor command\n";
+      // Triggers other plugins to publish
+      gzdbg << "Waiting...\n";
+    gzdbg << "Callback count " << this->sensorCallbackCount << std::endl;
     }
-    gzdbg << "Publishing motor command\n";
-    this->cmdPub->Publish(cmd);
-    gzdbg << "Done publishing motor command\n";
-    // Triggers other plugins to publish
-    gzdbg << "Waiting...\n";
-    SendState();
-    // this->world->Step(1);
-    }
+    // }
+    
         // gzdbg << "Force X=" << f.X() << " Y=" << f.Y() << " Z=" << f.Z() << std::endl;
         // //ignition::math::Vector3d f2 = this->ballJoint->GetForceTorque(0).body2Force;
         // gzdbg << "Force Body 2 X=" << f2.X() << " Y=" << f2.Y() << " Z=" << f2.Z() << std::endl;
@@ -833,8 +840,6 @@ bool FlightControllerPluginArducopter::ReceiveAction()
   // Do the reassignment because protobuf needs string
   msg.assign(buf, recvSize);
   this->action.ParseFromString(msg);
-  gzdbg << " Motor Size " << this->action.motor_size() << std::endl;
-  gzdbg << " Motor 0 " << this->action.motor(0) << std::endl;
 
   return true; 
 }
@@ -889,10 +894,10 @@ bool FlightControllerPluginArducopter::ReceiveMotorCommand()
   {
     gzdbg << "Drained n packets: " << counter << std::endl;
   }
-
+this->connectionTimeoutMaxCount = 10;
   ssize_t expectedPktSize =
     sizeof(pkt.motorSpeed[0])*this->numActuators;
-  if ((recvSize == -1) || recvSize < expectedPktSize)
+  if ((recvSize == -1) || (recvSize < expectedPktSize))
   {
     gazebo::common::Time::NSleep(100);
     if (this->arduCopterOnline )
@@ -925,6 +930,7 @@ bool FlightControllerPluginArducopter::ReceiveMotorCommand()
       gzerr << "got less than model needs. Got: " << recvSize << "commands, expected size: " << expectedPktSize << "\n";
             return false;
     }
+    this->connectionTimeoutCount = 0;
     this->action.Clear();
     for(unsigned int i =0; i<this->numActuators;i++){
         this->action.add_motor(pkt.motorSpeed[i]);
@@ -939,34 +945,34 @@ bool FlightControllerPluginArducopter::ReceiveMotorCommand()
 void FlightControllerPluginArducopter::SendState() const
 {
   fdmPacket pkt_send ;
-  ignition::math::Pose3d gazeboToNED(0, 0, 0, IGN_PI, 0, 0);
+  // ignition::math::Pose3d gazeboToNED(0, 0, 0, IGN_PI, 0, 0);
 
-  // model world pose brings us to model, x-forward, y-left, z-up
-  // adding gazeboToNED gets us to the x-forward, y-right, z-down
-  ignition::math::Pose3d worldToModel = gazeboToNED +
-    this->model->WorldPose();
+  // // model world pose brings us to model, x-forward, y-left, z-up
+  // // adding gazeboToNED gets us to the x-forward, y-right, z-down
+  // ignition::math::Pose3d worldToModel = gazeboToNED +
+    ;
 
   // get transform from world NED to Model frame
-  ignition::math::Pose3d NEDToModel = worldToModel - gazeboToNED;
+  ignition::math::Pose3d pose_drone = this->model->WorldPose();
 
-  // gzerr << "ned to model [" << NEDToModel << "]\n";
+  // gzerr << "ned to model [" << pose_drone << "]\n";
 
   // N
-  pkt_send.positionXYZ[0] = NEDToModel.Pos().X();
+  pkt_send.positionXYZ[0] = pose_drone.Pos().X();
 
   // E
-  pkt_send.positionXYZ[1] = NEDToModel.Pos().Y();
+  pkt_send.positionXYZ[1] = pose_drone.Pos().Y();
 
   // D
-  pkt_send.positionXYZ[2] = NEDToModel.Pos().Z();
+  pkt_send.positionXYZ[2] = pose_drone.Pos().Z();
 
   ignition::math::Vector3d velGazeboWorldFrame =
     this->model->GetLink()->WorldLinearVel();
-  ignition::math::Vector3d velNEDFrame =
-    gazeboToNED.Rot().RotateVectorReverse(velGazeboWorldFrame);
-  pkt_send.velocityXYZ[0] = velNEDFrame.X();
-  pkt_send.velocityXYZ[1] = velNEDFrame.Y();
-  pkt_send.velocityXYZ[2] = velNEDFrame.Z();
+  // ignition::math::Vector3d velNEDFrame =
+  //   gazeboToNED.Rot().RotateVectorReverse(velGazeboWorldFrame);
+  pkt_send.velocityXYZ[0] = velGazeboWorldFrame.X();
+  pkt_send.velocityXYZ[1] = velGazeboWorldFrame.Y();
+  pkt_send.velocityXYZ[2] = velGazeboWorldFrame.Z();
 
   for(unsigned int i = 0; i<4;i++){
     if(i<3){
@@ -977,7 +983,7 @@ void FlightControllerPluginArducopter::SendState() const
   }
   pkt_send.timestamp = this->world->SimTime().Double();
   send(this->handle_tx, &pkt_send, sizeof(pkt_send), 0);
-  sendto(this->handle_tx, &pkt_send, sizeof(pkt_send), 0,(struct sockaddr *)&this->sockaddr_python,sizeof(this->sockaddr_python));
+  // sendto(this->handle_tx, &pkt_send, sizeof(pkt_send), 0,(struct sockaddr *)&this->sockaddr_python,sizeof(this->sockaddr_python));
 }
 ssize_t FlightControllerPluginArducopter::Recv(void *_buf, const size_t _size, uint32_t _timeoutMs)
   {

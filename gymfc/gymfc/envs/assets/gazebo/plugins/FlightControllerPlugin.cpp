@@ -218,11 +218,11 @@ void FlightControllerPlugin::LoadVars()
   // Default port can be read in from an environment variable
   // This allows multiple instances to be run
   
-  // if(const char* env_p =  std::getenv(ENV_SITL_PORT))
-  // {
-	// 	  port = std::stoi(env_p);
-  // }
   int port = 9002;
+  if(const char* env_p =  std::getenv(ENV_SITL_PORT))
+  {
+		  port = std::stoi(env_p);
+  }
   gzdbg << "Binding on port " << port << "\n";
   if (!this->Bind("127.0.0.1", port))
   {

@@ -109,7 +109,7 @@ if __name__ == "__main__":
     env.render()
 
     num_trials = 1
-    inputs = generate_inputs(num_trials=num_trials,max_rate=env.max_rate,seed=seed)
+    inputs = [np.array([100,-200,150])] #generate_inputs(num_trials=num_trials,max_rate=env.max_rate,seed=seed)
 
     flight(checkpoint_path=ckpt_path,env=env,num_trials=num_trials,inputs=inputs)
 

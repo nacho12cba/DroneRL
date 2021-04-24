@@ -59,7 +59,7 @@ def train(env, num_timesteps, seed, ckpt_dir=None,
     workerseed = seed + 1000000 * rank
     def policy_fn(name, ob_space, ac_space):
         return MlpPolicy(name=name, ob_space=ob_space, ac_space=ac_space,
-                         hid_size=32, num_hid_layers=2)
+                         hid_size=64, num_hid_layers=2)
     if render:
         env.render()
     env.seed(workerseed)
