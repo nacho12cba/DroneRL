@@ -3,3 +3,15 @@ YAMSPy/README.md
 YAMSPy/LICENSE
 YAMSPy/setup.py
 YAMSPy/MSPy.log
+gymfc/images/
+gymfc/docker
+gymfc/baselines/
+gymfc/CONTRIBUTING.md
+gymfc/README.md
+gymfc/LICENSE.txt
+gymfc/setup.py
+gymfc/examples/baselines/
+neuroflight/LICENSE
+neuroflight/README.md
+neuroflight/CONTRIBUTING.md
+neuroflight/downloads/gcc-arm-none-eabi-7-2017-q4-major-linux.tar.bz2
