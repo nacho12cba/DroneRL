@@ -36,8 +36,8 @@ class StepEnvAngle(RewardEnvAngle):
 
         self.pulse_width = pulse_width
         self.max_rate = max_rate
-        self.max_angle = 90
-        self.min_angle = -90
+        self.max_angle = 60
+        self.min_angle = -60
 
         self.rising = True
         self.outputs = []

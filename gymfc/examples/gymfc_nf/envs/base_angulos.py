@@ -33,6 +33,8 @@ class BaseEnvAngle(FlightControlEnv, gym.Env):
         # Init all of the variables for the simulation
         self._init()
 
+        self.angle_anterior = [0,0,0]
+
         # Define the Gym action and observation spaces
         self.action_space = spaces.Box(-np.ones(4), np.ones(4), dtype=np.float32)
         self.action = self.action_space.low 
@@ -88,7 +90,7 @@ class BaseEnvAngle(FlightControlEnv, gym.Env):
         # self.true_error = self.angular_rate_sp - self.imu_angular_velocity_rpy
         self.true_error = self.angle_sp - angle_rpy
         # self.measured_error = self.angular_rate_sp - self.angular_rate
-        self.measured_error = self.angular_rate_sp - angle_rpy
+        self.measured_error = self.angle_sp - angle_rpy
 
         done = self.sim_time >= self.max_sim_time 
 
@@ -106,6 +108,7 @@ class BaseEnvAngle(FlightControlEnv, gym.Env):
         self.step_counter += 1
         if self.step_callback:
             self.step_callback(self, state, reward, done)
+        self.angle_anterior = angle_rpy
         return state, reward, done, {}
 
     def quaternion_to_angles(self):
@@ -113,11 +116,14 @@ class BaseEnvAngle(FlightControlEnv, gym.Env):
         y = self.imu_orientation_quat[2]
         z = self.imu_orientation_quat[3]
         w = self.imu_orientation_quat[0]
+        X_ant = self.angle_anterior[0]
+        Y_ant = self.angle_anterior[1]
+        Z_ant = self.angle_anterior[2]
         import math
         t0 = +2.0 * (w * x + y * z)
         t1 = +1.0 - 2.0 * (x * x + y * y)
         X = math.degrees(math.atan2(t0, t1))
-
+        
         t2 = +2.0 * (w * y - z * x)
         t2 = +1.0 if t2 > +1.0 else t2
         t2 = -1.0 if t2 < -1.0 else t2

@@ -28,35 +28,43 @@ class RewardEnvAngle(BaseEnvAngle):
 
         super().__init__(max_sim_time = max_sim_time, state_fn = state_fn)
         self._reset()
+        self.prev_shaping = 0
 
 
     def compute_reward(self):
 
         shaping = \
-            -np.sum(self.true_error**2)
+            -np.sum(np.absolute(self.true_error)**2)
         
         e_penalty = 0
         if self.prev_shaping is not None:
-            e_penalty = shaping - self.prev_shaping
-        self.prev_shaping = shaping
+            e_penalty = shaping + self.prev_shaping
+        if(self.prev_shaping == None):
+            self.prev_shaping = shaping
+        else:
+            self.prev_shaping += shaping
+        for x in self.true_error:
+            if(np.abs(x)<0.1):
+                e_penalty += 10
 
         # Reward the agent for minimizing their control ouputs. 
         # In order to get the reward, the agent must be in the error band, 
         # otherwise the agent will just output zero.
         min_y_reward = 0
         # Error band is minimum 5 deg/s, maximum 10% of angular rate sp
-        threshold = np.maximum(np.abs(self.angle_sp) * 0.1, np.array([5]*3)) 
-        inband = (np.abs(self.true_error) <= threshold).all()
-        percent_idle = 0.12 #should be about 12%, different for every aircraft
-        max_min_y_reward = 1000
-        if np.average(self.y) < percent_idle: # You get a max of 900
-            min_y_reward = max_min_y_reward * (1 - percent_idle) * inband
-        else:
-            min_y_reward = max_min_y_reward * (1 - np.average(self.y)) * inband 
+        # threshold = np.maximum(np.abs(self.angle_sp) * 0.1, np.array([5]*3)) 
+        # inband = (np.abs(self.true_error) <= threshold).all()
+        # percent_idle = 0.12 #should be about 12%, different for every aircraft
+        # max_min_y_reward = 1000
+        # if np.average(self.y) < percent_idle: # You get a max of 900
+        #     min_y_reward = max_min_y_reward * (1 - percent_idle) * inband
+        # else:
+        #     min_y_reward = max_min_y_reward * (1 - np.average(self.y)) * inband 
 
         rewards = [
             # penalty for oscillations
-            -1000 * np.max(np.abs(self.y - self.last_y)),
+            # -1000 * np.max(np.abs(self.y - self.last_y)),
+            0,
             # Reward for minimizing control output. This is needed  because the
             # training environment fixes the aircraft about its center of thrust
             # thus we need to teach the agent to use as low control output values
@@ -70,7 +78,7 @@ class RewardEnvAngle(BaseEnvAngle):
             # the agent tends to generate binary outputs, i.e., [-1, 1].
             -1e9 * np.sum(self.oversaturation_high()),
             # penalty if the agent does nothing, i.e., refusing to 'play'
-            self.doing_nothing_penalty(),
+            self.doing_nothing_penalty()
         ]
         self.ind_rewards = rewards
 
@@ -78,12 +86,14 @@ class RewardEnvAngle(BaseEnvAngle):
 
     def doing_nothing_penalty(self, penalty=1e9):
         total_penalty = 0 
-        if (self.true_error > np.ones(self.true_error.shape[0])*5).any() and  np.sum(self.y == 0) > 2:
-            total_penalty -= penalty
+        # if (self.true_error > np.ones(self.true_error.shape[0])*5).any() and  np.sum(self.y == 0) > 2:
+        #     total_penalty -= penalty
         # These always apply
-        # if np.sum(self.y == 0) > 2 and not (self.angular_rate_sp == np.zeros(3)).all():
-        #     total_penalty -= penalty 
-        # # All high, should only happen on a punch out, not for attitude control
+        if np.sum(self.y == 0) > 2 and not (self.angle_sp == np.zeros(3)).all():
+            total_penalty -= penalty 
+        # All high, should only happen on a punch out, not for attitude control
+        # if (self.imu_angular_velocity_rpy > 100*np.ones(self.imu_angular_velocity_rpy.shape[0])).any():
+        #     total_penalty -= penalty
         if (self.y == 1).all():
             total_penalty -= penalty
         return total_penalty

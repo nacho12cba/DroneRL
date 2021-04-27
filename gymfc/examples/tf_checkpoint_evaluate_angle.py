@@ -15,10 +15,10 @@ def generate_inputs(num_trials, max_rate, seed):
     inputs = []
     np.random.seed(seed)
     for i in range(num_trials):
-        inputs.append(np.random.normal(0, max_rate, size=3))
+        inputs.append(np.random.normal(-15, 15, size=3))
     return inputs
 
-def quaternion_to_euler(quat):
+def quaternion_to_euler(quat,X_ant,Y_ant,Z_ant):
     x = quat[1]
     y = quat[2]
     z = quat[3]
@@ -106,13 +106,14 @@ if __name__ == "__main__":
 
                 sim_time = 0
                 actual = np.zeros(3)
+                angle_anterior = [0,0,0]
 
                 logs = []
                 while True:
                     ac = pi.action(ob, env.sim_time, env.angular_rate_sp,
                                    env.imu_angular_velocity_rpy)
                     ob, reward, done,  _ = env.step(ac)
-                    angle = quaternion_to_euler(env.imu_orientation_quat)
+                    angle = quaternion_to_euler(env.imu_orientation_quat,angle_anterior[0],angle_anterior[1],angle_anterior[2])
 
                     # TODO (wfk) Should we standardize this log format? We could
                     # use NASA's SIDPAC channel format.
@@ -125,12 +126,12 @@ if __name__ == "__main__":
                             env.esc_motor_angular_velocity.tolist() +
                             [reward])# The reward that would have been given for the action, can be helpful for debugging
 
-
+                    
                     e = angle - env.angle_sp
                     es.append(e)
                     rs.append(reward)
                     logs.append(log)
-
+                    angle_anterior = angle
                     if done:
                         break
                 np.savetxt(log_file, logs, delimiter=",", header=log_header)

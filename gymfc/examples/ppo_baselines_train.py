@@ -154,10 +154,10 @@ class StepCallback:
         self.es.append(local.true_error)
         self.sps.append(local.angular_rate_sp)
 
-        assert local.ind_rewards[0] <= 0 # oscillation penalty
-        assert local.ind_rewards[1] >= 0 # min output reward
-        assert local.ind_rewards[3] <= 0 # over saturation penalty
-        assert local.ind_rewards[4] <= 0 # do nothing penalty
+        # assert local.ind_rewards[0] <= 0 # oscillation penalty
+        # assert local.ind_rewards[1] >= 0 # min output reward
+        # assert local.ind_rewards[3] <= 0 # over saturation penalty
+        # assert local.ind_rewards[4] <= 0 # do nothing penalty
 
         self.rewards.append(local.ind_rewards)
 
