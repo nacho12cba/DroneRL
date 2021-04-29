@@ -47,7 +47,7 @@ namespace gazebo
   static const std::string kDefaultEscSubTopic = "/aircraft/sensor/esc";
  // TODO Change link name to CoM
   const std::string DIGITAL_TWIN_ATTACH_LINK = "base_link";
-  const std::string kTrainingRigModelName = "attitude_control_training_rig";
+  const std::string kTrainingRigModelName = "attitude_control_training_rig_control_completo";
 
   const std::string kAircraftConfigFileName = "libAircraftConfigPlugin.so";
 
