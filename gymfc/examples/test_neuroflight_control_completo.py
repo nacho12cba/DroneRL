@@ -113,7 +113,7 @@ if __name__ == "__main__":
     seed = np.random.randint(0, 1e6) if seed_in < 0 else seed_in
 
     gym_id = "gymfc_nf-step-v1"
-    ckpt_path = '/home/puriqgpu/DroneRL/model/checkpoints/ppo1-gymfc_nf-step-v1-10003968.ckpt'
+    ckpt_path = '/home/intigpu/DroneRL/model/checkpoints/ppo1-gymfc_nf-step-v1-10003968.ckpt'
     twin = "./gymfc_nf/twins/nf1-sitl/model.sdf"
 
 
