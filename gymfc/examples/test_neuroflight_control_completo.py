@@ -54,8 +54,10 @@ def flight(checkpoint_path,env,num_trials=1,inputs=[[0,0,0]]):  ##una función, 
             while True: ##hasta llegar al break
                 ac = pi.action(ob, env.sim_time, env.angular_rate_sp,
                                 env.imu_angular_velocity_rpy)   ##asigna a ac la acción con los argumentos: entorno, tiempo de simulación, set point, imu_angular_velocity_rpy (debe ser directamente las velocidades angulares)
-                ob, reward, done,  _ = env.step(ac) ##entiendo que asigna a las variables ob, reward, done, _, algo que retorna el step del entorno cuando toma como argumento la acción
-                                                    ##necesito buscar la función step. En base.py hay una función step, así que supongo que env siempre va a heredar de base.py. 
+                
+                
+                if env.sim_time > 10000: ob, reward, done,  _ = env.step(ac) ##entiendo que asigna a las variables ob, reward, done, _, algo que retorna el step del entorno cuando toma como argumento la acción
+                else env.step(0.4,0.4,0.4,0.4)                                   ##necesito buscar la función step. En base.py hay una función step, así que supongo que env siempre va a heredar de base.py. 
                                                     ##la step de base.py devuelve: return state, reward, done, {}. No sé qué es llaves, pero bueno. Algo nulo, pero no sé por qué se correspondería con el _
                                                     ##además acá ejecuta el paso de simulación, que en teoría devuelve la información de estado resultante
                                                     ##así que en el step debería consultarse la información de "medición" que necesito
