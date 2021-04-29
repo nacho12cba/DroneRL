@@ -17,8 +17,9 @@ def state_degrees_error_deltaerror_q(local):
     return np.concatenate([local.measured_error, error_delta, q]) 
 
 def state_degrees_error_deltaerror(local):
-    # error_delta = local.measured_error - local.last_measured_error 
-    return np.concatenate([local.measured_error, local.imu_angular_velocity_rpy]) 
+    error_delta = local.measured_error - local.last_measured_error 
+    #return np.concatenate([local.measured_error, local.imu_angular_velocity_rpy]) 
+    return np.concatenate([local.measured_error, error_delta]) 
 
 def state_error_deltaerror(local):
     err_rad = np.array(list(map(math.radians, local.measured_error)))# / math.radians(self.max_rate)
