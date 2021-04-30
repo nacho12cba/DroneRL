@@ -549,7 +549,8 @@ void FlightControllerPluginArducopter::LoadDigitalTwin()
       model->Init();
       return;
   }
-  // Create the ball joint to attach the aircraft too
+  // Create the ball joint to attach the aircraft too %%ACA ES DONDE VOY A COMENTAR PARA EVITAR QUE QUEDE FIJO EL DRONE
+  /*
   gazebo::physics::JointPtr joint;
   joint = this->world->Physics()->CreateJoint("ball", supportModel);
   joint->SetName("ball_joint");
@@ -598,7 +599,7 @@ void FlightControllerPluginArducopter::LoadDigitalTwin()
   joint->Init();
   
   // This is actually great because we've removed the ground plane so there is no possible collision
-  gzdbg << "Aircraft model fixed to world\n";
+  gzdbg << "Aircraft model fixed to world\n";*/ 
 }
 
 void FlightControllerPluginArducopter::FlushSensors()

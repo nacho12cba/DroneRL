@@ -56,7 +56,7 @@ typedef SSIZE_T ssize_t;
 #include <gazebo/physics/Base.hh>
 
 
-#include "FlightControllerPlugin.hh"
+#include "FlightControllerPluginArducopter.hh"
 
 #include "MotorCommand.pb.h"
 #include "EscSensor.pb.h"
@@ -90,7 +90,7 @@ bool getSdfParam(sdf::ElementPtr _sdf, const std::string &_name,
   _param = _defaultValue;
   if (_verbose)
   {
-    gzerr << "[FlightControllerPlugin] Please specify a value for parameter ["
+    gzerr << "[FlightControllerPluginArducopter] Please specify a value for parameter ["
       << _name << "].\n";
   }
   return false;
@@ -110,39 +110,88 @@ bool hasEnding (std::string const &fullString, std::string const &ending) {
 using namespace gazebo;
 
 
-GZ_REGISTER_WORLD_PLUGIN(FlightControllerPlugin)
+GZ_REGISTER_WORLD_PLUGIN(FlightControllerPluginArducopter)
 
 boost::mutex g_CallbackMutex;
 
-FlightControllerPlugin::FlightControllerPlugin() 
+/// \brief A servo packet.
+struct ServoPacket
+{
+  /// \brief Motor speed data.
+  float motorSpeed[MAX_MOTORS];
+};
+/// \brief Flight Dynamics Model packet that is sent back to the ArduCopter
+struct fdmPacket
+{
+  /// \brief packet timestamp
+  double timestamp;
+
+  /// \brief IMU angular velocity
+  double imuAngularVelocityRPY[3];
+
+  /// \brief IMU linear acceleration
+  double imuLinearAccelerationXYZ[3];
+
+  /// \brief IMU quaternion orientation
+  double imuOrientationQuat[4];
+
+  /// \brief Model velocity in NED frame
+  double velocityXYZ[3];
+
+  /// \brief Model position in NED frame
+  double positionXYZ[3];
+};
+
+FlightControllerPluginArducopter::FlightControllerPluginArducopter() 
 {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
   // socket
-  this->handle = socket(AF_INET, SOCK_DGRAM /*SOCK_STREAM*/, 0);
+  this->handle_rx = socket(AF_INET, SOCK_DGRAM /*SOCK_STREAM*/, 0);
   #ifndef _WIN32
   // Windows does not support FD_CLOEXEC
-  fcntl(this->handle, F_SETFD, FD_CLOEXEC);
+  fcntl(this->handle_rx, F_SETFD, FD_CLOEXEC);
   #endif
   int one = 1;
-  setsockopt(this->handle, IPPROTO_TCP, TCP_NODELAY,
+  setsockopt(this->handle_rx, IPPROTO_TCP, TCP_NODELAY,
       reinterpret_cast<const char *>(&one), sizeof(one));
 
 
-  setsockopt(this->handle, SOL_SOCKET, SO_REUSEADDR,
+  setsockopt(this->handle_rx, SOL_SOCKET, SO_REUSEADDR,
      reinterpret_cast<const char *>(&one), sizeof(one));
 
   #ifdef _WIN32
   u_long on = 1;
-  ioctlsocket(this->handle, FIONBIO,
+  ioctlsocket(this->handle_rx, FIONBIO,
               reinterpret_cast<u_long FAR *>(&on));
   #else
-  fcntl(this->handle, F_SETFL,
-      fcntl(this->handle, F_GETFL, 0) | O_NONBLOCK);
+  fcntl(this->handle_rx, F_SETFL,
+      fcntl(this->handle_rx, F_GETFL, 0) | O_NONBLOCK);
+  #endif
+
+  this->handle_tx = socket(AF_INET, SOCK_DGRAM /*SOCK_STREAM*/, 0);
+  #ifndef _WIN32
+  // Windows does not support FD_CLOEXEC
+  fcntl(this->handle_tx, F_SETFD, FD_CLOEXEC);
+  #endif
+  setsockopt(this->handle_tx, IPPROTO_TCP, TCP_NODELAY,
+      reinterpret_cast<const char *>(&one), sizeof(one));
+
+
+  setsockopt(this->handle_tx, SOL_SOCKET, SO_REUSEADDR,
+     reinterpret_cast<const char *>(&one), sizeof(one));
+
+  #ifdef _WIN32
+  u_long on = 1;
+  ioctlsocket(this->handle_tx, FIONBIO,
+              reinterpret_cast<u_long FAR *>(&on));
+  #else
+  fcntl(this->handle_tx, F_SETFL,
+      fcntl(this->handle_tx, F_GETFL, 0) | O_NONBLOCK);
   #endif
 
 }
-FlightControllerPlugin::~FlightControllerPlugin()
+FlightControllerPluginArducopter::~FlightControllerPluginArducopter()
 {
     // Tear down the transporter
     gazebo::transport::fini();
@@ -152,7 +201,7 @@ FlightControllerPlugin::~FlightControllerPlugin()
 }
 
 
-void FlightControllerPlugin::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
+void FlightControllerPluginArducopter::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
 {
 
   this->world = _world;
@@ -174,7 +223,7 @@ void FlightControllerPlugin::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf
     switch(sensor)
     {
       case IMU:
-        this->imuSub = this->nodeHandle->Subscribe<sensor_msgs::msgs::Imu>(this->imuSubTopic, &FlightControllerPlugin::ImuCallback, this);
+        this->imuSub = this->nodeHandle->Subscribe<sensor_msgs::msgs::Imu>(this->imuSubTopic, &FlightControllerPluginArducopter::ImuCallback, this);
         break;
       case ESC:
         //Each defined motor will have a unique index, since they are indpendent they must come in 
@@ -183,7 +232,7 @@ void FlightControllerPlugin::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf
         //for (unsigned int i = 1; i <= this->numActuators; i++)
         for (unsigned int i = 0; i < this->numActuators; i++)
         {
-          this->escSub.push_back(this->nodeHandle->Subscribe<sensor_msgs::msgs::EscSensor>(this->escSubTopic + "/" + std::to_string(i) , &FlightControllerPlugin::EscSensorCallback, this));
+          this->escSub.push_back(this->nodeHandle->Subscribe<sensor_msgs::msgs::EscSensor>(this->escSubTopic + "/" + std::to_string(i) , &FlightControllerPluginArducopter::EscSensorCallback, this));
         }
         break;
     }
@@ -195,9 +244,9 @@ void FlightControllerPlugin::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf
   this->world->SetPaused(true);
 
 
-  this->callbackLoopThread = boost::thread( boost::bind( &FlightControllerPlugin::LoopThread, this) );
+  this->callbackLoopThread = boost::thread( boost::bind( &FlightControllerPluginArducopter::LoopThread, this) );
 }
-bool FlightControllerPlugin::SensorEnabled(Sensors _sensor)
+bool FlightControllerPluginArducopter::SensorEnabled(Sensors _sensor)
 {
   for (auto  sensor : this->supportedSensors)
   {
@@ -209,7 +258,7 @@ bool FlightControllerPlugin::SensorEnabled(Sensors _sensor)
   return false;
 
 }
-void FlightControllerPlugin::LoadVars()
+void FlightControllerPluginArducopter::LoadVars()
 {
 
   //XXX This is getting messy, if there is anything the plugin needs
@@ -218,15 +267,17 @@ void FlightControllerPlugin::LoadVars()
   // Default port can be read in from an environment variable
   // This allows multiple instances to be run
   
-  int port = 9002;
-  if(const char* env_p =  std::getenv(ENV_SITL_PORT))
+  // if(const char* env_p =  std::getenv(ENV_SITL_PORT))
+  // {
+	// 	  port = std::stoi(env_p);
+  // }
+  int port_tx = 9003;
+  int port_rx = 9002;
+  gzdbg << "Binding on port " << port_tx << "\n";
+  gzdbg << "Binding on port " << port_rx << "\n";
+  if (!this->BindAndConnect("127.0.0.1", port_tx,port_rx))
   {
-		  port = std::stoi(env_p);
-  }
-  gzdbg << "Binding on port " << port << "\n";
-  if (!this->Bind("127.0.0.1", port))
-  {
-    gzerr << "failed to bind with 127.0.0.1:" << port <<", aborting plugin.\n";
+    gzerr << "failed to bind with 127.0.0.1:" << port_rx <<", aborting plugin.\n";
     return;
   }
 
@@ -242,7 +293,7 @@ void FlightControllerPlugin::LoadVars()
 
 }
 
-void FlightControllerPlugin::InitState()
+void FlightControllerPluginArducopter::InitState()
 {
   for (unsigned int i = 0; i < 3; i++)
   {
@@ -278,7 +329,7 @@ void FlightControllerPlugin::InitState()
 
 }
 
-void FlightControllerPlugin::EscSensorCallback(EscSensorPtr &_escSensor)
+void FlightControllerPluginArducopter::EscSensorCallback(EscSensorPtr &_escSensor)
 {
   uint32_t id = _escSensor->id();  
   boost::mutex::scoped_lock lock(g_CallbackMutex);
@@ -294,7 +345,7 @@ void FlightControllerPlugin::EscSensorCallback(EscSensorPtr &_escSensor)
   this->callbackCondition.notify_all();
 
 }
-void FlightControllerPlugin::ImuCallback(ImuPtr &_imu)
+void FlightControllerPluginArducopter::ImuCallback(ImuPtr &_imu)
 {
   //gzdbg << "Received IMU" << std::endl;
   boost::mutex::scoped_lock lock(g_CallbackMutex);
@@ -316,7 +367,7 @@ void FlightControllerPlugin::ImuCallback(ImuPtr &_imu)
   this->callbackCondition.notify_all();
 
 }
-void FlightControllerPlugin::ProcessSDF(sdf::ElementPtr _sdf)
+void FlightControllerPluginArducopter::ProcessSDF(sdf::ElementPtr _sdf)
 {
   this->cmdPubTopic = kDefaultCmdPubTopic;
   if (_sdf->HasElement("commandPubTopic")){
@@ -340,7 +391,7 @@ void FlightControllerPlugin::ProcessSDF(sdf::ElementPtr _sdf)
 
 }
 
-void FlightControllerPlugin::SoftReset()
+void FlightControllerPluginArducopter::SoftReset()
 {
   //this->world->Reset();
   this->world->ResetTime();
@@ -349,7 +400,7 @@ void FlightControllerPlugin::SoftReset()
 }
 
 
-physics::LinkPtr FlightControllerPlugin::FindLinkByName(physics::ModelPtr _model, std::string _linkName)
+physics::LinkPtr FlightControllerPluginArducopter::FindLinkByName(physics::ModelPtr _model, std::string _linkName)
 {
   for (auto link : _model->GetLinks())
   {
@@ -364,7 +415,7 @@ physics::LinkPtr FlightControllerPlugin::FindLinkByName(physics::ModelPtr _model
 
 }
 
-void FlightControllerPlugin::ParseDigitalTwinSDF()
+void FlightControllerPluginArducopter::ParseDigitalTwinSDF()
 {
    // Load the root digital twin sdf file
   const std::string sdfPath(this->digitalTwinSDF);
@@ -384,6 +435,7 @@ void FlightControllerPlugin::ParseDigitalTwinSDF()
     return;
   }
   this->modelElement = rootElement->GetElement("model");
+  
 
   sdf::ElementPtr pluginPtr = this->modelElement->GetElement("plugin");
 
@@ -439,9 +491,9 @@ void FlightControllerPlugin::ParseDigitalTwinSDF()
   }
 
 }
-void FlightControllerPlugin::LoadDigitalTwin()
+void FlightControllerPluginArducopter::LoadDigitalTwin()
 {
-  gzdbg << "Inserting digital twin from SDF, " << this->digitalTwinSDF << ".\n";
+  gzdbg << "Inserting digital twin from SDF, " << this->digitalTwinSDF << ".\n";  
 
   // XXX Better way to do this?
   // It appears the inserted model is not available in the world
@@ -465,17 +517,15 @@ void FlightControllerPlugin::LoadDigitalTwin()
   //gzdbg << "Found " << modelName << " model!" << std::endl;
 
   // Now get a pointer to the model
-  physics::ModelPtr model = this->world->ModelByName(modelName);
+  this->model = this->world->ModelByName(modelName);
   if (!model){
     gzerr << "Could not access model " << modelName <<" from world"<<std::endl;
     return;
   }
 
-  if (this->world->Name().compare("default") != 0)
-  {
-      gzdbg << "Using dyno, not linking aircraft to world" << std::endl;
-      return;
-  }
+  // model->SetWorldPose(ignition::math::Pose3d(0,0,1,0,0,0));
+
+
 
   physics::ModelPtr supportModel = this->world->ModelByName(kTrainingRigModelName);
   if (!supportModel){
@@ -490,15 +540,23 @@ void FlightControllerPlugin::LoadDigitalTwin()
     return;
   }
 
-  // Create the ball joint to attach the aircraft too
-  //ACA COMENTO PARA EVITAR QUE QUEDE FIJO
+  
+  gazebo::physics::LinkPtr batteryLink;
+  batteryLink = FindLinkByName(model,"battery");
+  if (this->world->Name().compare("default") != 0)
+  {
+      gzdbg << "Using dyno, not linking aircraft to world" << std::endl;
+      model->Init();
+      return;
+  }
+  // Create the ball joint to attach the aircraft too 
+  //ACA COMENTO PARA EVITAR QUE QUEDE EL DRONE FIJO
   /*
   gazebo::physics::JointPtr joint;
   joint = this->world->Physics()->CreateJoint("ball", supportModel);
   joint->SetName("ball_joint");
   joint->Attach(supportModel->GetLink("pivot"), centerOfThrustReferenceLink);
   this->ballJoint = joint;
-
 
   if (this->world->Physics()->GetType().compare("dart") == 0)
   {
@@ -545,7 +603,7 @@ void FlightControllerPlugin::LoadDigitalTwin()
   gzdbg << "Aircraft model fixed to world\n";*/
 }
 
-void FlightControllerPlugin::FlushSensors()
+void FlightControllerPluginArducopter::FlushSensors()
 {
   // Make sure we do a reset on the time even if sensors are within range 
   // XXX The first episode the sensor values are set to some active value
@@ -593,24 +651,44 @@ void FlightControllerPlugin::FlushSensors()
   this->SoftReset();
 
 }
-void FlightControllerPlugin::LoopThread()
+void FlightControllerPluginArducopter::LoopThread()
 {
-
 
   this->LoadDigitalTwin();
 	while (1){
 
-		bool ac_received = this->ReceiveAction();
+		bool ac_received = this->ReceiveMotorCommand();
         //ignition::math::Vector3d f = this->world->ModelByName(kTrainingRigModelName)->GetLink("pivot")->RelativeForce();
 
-    // gzdbg << "Received?" << ac_received << std::endl;
-		if (!ac_received){
-        continue;
+    if(!ac_received){
+      if (this->arduCopterOnline){
+        this->SendState();
+        gzdbg << "Arducopter conectado sin datos" << std::endl;
+      }
     }
-
-        /* XXX This is a way to get force applied to possibly use for reward   
-		 */
-        this->ballJointForce = this->ballJoint->GetForceTorque(0).body1Force;
+    else{
+    //  gzdbg << "Received?" << ac_received << std::endl;
+		// if (this->arduCopterOnline){
+    this->ResetCallbackCount();
+    gzdbg << "Callback count " << this->sensorCallbackCount << std::endl;
+      //Forward the motor commands from the agent to each motor
+      cmd_msgs::msgs::MotorCommand cmd;
+      // gzdbg << "Sending motor commands to digital twin" << std::endl;
+      for (unsigned int i = 0; i < this->numActuators; i++)
+      {
+        cmd.add_motor(this->action.motor(i));
+      }
+      // gzdbg << "Publishing motor command\n";
+      this->cmdPub->Publish(cmd);
+      this->world->Step(1);
+      this->SendState();
+      // gzdbg << "Done publishing motor command\n";
+      // Triggers other plugins to publish
+      gzdbg << "Waiting...\n";
+    gzdbg << "Callback count " << this->sensorCallbackCount << std::endl;
+    }
+    // }
+    
         // gzdbg << "Force X=" << f.X() << " Y=" << f.Y() << " Z=" << f.Z() << std::endl;
         // //ignition::math::Vector3d f2 = this->ballJoint->GetForceTorque(0).body2Force;
         // gzdbg << "Force Body 2 X=" << f2.X() << " Y=" << f2.Y() << " Z=" << f2.Z() << std::endl;
@@ -618,46 +696,30 @@ void FlightControllerPlugin::LoopThread()
 
 
     // Handle reset command
- if (this->world->Name().compare("default") == 0)
- {
-    if (this->action.world_control() == gymfc::msgs::Action::RESET)
-    {
-      gzdbg << " Flushing sensors..." << std::endl;
-      // Block until we get respone from sensors
-      this->FlushSensors();
-      gzdbg << " Sensors flushed." << std::endl;
-      this->state.set_sim_time(this->world->SimTime().Double());
-      this->state.set_status_code(gymfc::msgs::State_StatusCode_OK);
-      this->SendState();
-      continue;
-    }
-  }
-    this->ResetCallbackCount();
-    //gzdbg << "Callback count " << this->sensorCallbackCount << std::endl;
-    //Forward the motor commands from the agent to each motor
-    cmd_msgs::msgs::MotorCommand cmd;
-    gzdbg << "Sending motor commands to digital twin" << std::endl;
-    for (unsigned int i = 0; i < this->numActuators; i++)
-    {
-      gzdbg << i << "=" << this->action.motor(i) << std::endl;
-      cmd.add_motor(this->action.motor(i));
-    }
-    gzdbg << "Publishing motor command\n";
-    this->cmdPub->Publish(cmd);
-    gzdbg << "Done publishing motor command\n";
-    // Triggers other plugins to publish
-    this->world->Step(1);
-    gzdbg << "Waiting...\n";
-    this->WaitForSensorsThenSend();
+//  if (this->world->Name().compare("default") == 0)
+ // {
+    // if (this->action.world_control() == gymfc::msgs::Action::RESET)
+    // {
+    //   gzdbg << " Flushing sensors..." << std::endl;
+    //   // Block until we get respone from sensors
+    //   this->FlushSensors();
+    //   gzdbg << " Sensors flushed." << std::endl;
+    //   this->state.set_sim_time(this->world->SimTime().Double());
+    //   this->state.set_status_code(gymfc::msgs::State_StatusCode_OK);
+    //   this->SendState();
+    //   continue;
+    // }
+  //}
+    
 	}
 }
-void FlightControllerPlugin::ResetCallbackCount()
+void FlightControllerPluginArducopter::ResetCallbackCount()
 {
   boost::mutex::scoped_lock lock(g_CallbackMutex);
   this->sensorCallbackCount = -1 * this->numSensorCallbacks;
 }
 
-void FlightControllerPlugin::CalculateCallbackCount()
+void FlightControllerPluginArducopter::CalculateCallbackCount()
 {
   // Reset the callback count, once we step the sim all the new
   // vales will be published
@@ -676,7 +738,7 @@ void FlightControllerPlugin::CalculateCallbackCount()
   }
 
 } 
-void FlightControllerPlugin::WaitForSensorsThenSend()
+void FlightControllerPluginArducopter::WaitForSensorsThenSend()
 {
   this->state.set_force(0, this->ballJointForce.X());
   this->state.set_force(1, this->ballJointForce.Y());
@@ -688,7 +750,7 @@ void FlightControllerPlugin::WaitForSensorsThenSend()
   boost::mutex::scoped_lock lock(g_CallbackMutex);
   while (this->sensorCallbackCount < 0)
   {
-    //gzdbg << "Callback count = " << this->sensorCallbackCount << std::endl;
+    gzdbg << "Callback count = " << this->sensorCallbackCount << std::endl;
     this->callbackCondition.wait(lock);
   }
   /*
@@ -702,25 +764,44 @@ void FlightControllerPlugin::WaitForSensorsThenSend()
   this->SendState();
 }
 
-bool FlightControllerPlugin::Bind(const char *_address, const uint16_t _port)
+bool FlightControllerPluginArducopter::BindAndConnect(const char *_address, const uint16_t _port_tx,const uint16_t _port_rx)
 {
-  struct sockaddr_in sockaddr;
-  this->MakeSockAddr(_address, _port, sockaddr);
+  struct sockaddr_in sockaddr_rx;
+  struct sockaddr_in sockaddr_tx;
+  this->MakeSockAddr(_address, _port_rx, sockaddr_rx);
+  this->MakeSockAddr(_address, _port_tx, sockaddr_tx);
+  this->MakeSockAddr("127.0.0.1", 9004, this->sockaddr_python);
 
-  if (bind(this->handle, (struct sockaddr *)&sockaddr, sizeof(sockaddr)) != 0)
+  if (bind(this->handle_rx, (struct sockaddr *)&sockaddr_rx, sizeof(sockaddr)) != 0)
   {
-    shutdown(this->handle, 0);
+    shutdown(this->handle_rx, 0);
     #ifdef _WIN32
-    closesocket(this->handle);
+    closesocket(this->handle_rx);
     #else
-    close(this->handle);
+    close(this->handle_rx);
     #endif
     return false;
   }
+  if (connect(this->handle_tx, (struct sockaddr *)&sockaddr_tx, sizeof(sockaddr)) != 0)
+  {
+    shutdown(this->handle_tx, 0);
+    #ifdef _WIN32
+    closesocket(this->handle_tx);
+    #else
+    close(this->handle_tx);
+    #endif
+    return false;
+  }
+  // int one = 1;
+  // setsockopt(this->handle_tx, SOL_SOCKET, SO_REUSEADDR,
+  //        &one, sizeof(one));
+
+  // fcntl(this->handle_tx, F_SETFL,
+  // fcntl(this->handle_tx, F_GETFL, 0) | O_NONBLOCK);
   return true;
 }
 
-void FlightControllerPlugin::MakeSockAddr(const char *_address, const uint16_t _port,
+void FlightControllerPluginArducopter::MakeSockAddr(const char *_address, const uint16_t _port,
   struct sockaddr_in &_sockaddr)
 {
   memset(&_sockaddr, 0, sizeof(_sockaddr));
@@ -734,7 +815,7 @@ void FlightControllerPlugin::MakeSockAddr(const char *_address, const uint16_t _
   _sockaddr.sin_addr.s_addr = inet_addr(_address);
 }
 
-bool FlightControllerPlugin::ReceiveAction()
+bool FlightControllerPluginArducopter::ReceiveAction()
 {
 
   //TODO What should the buf size be? How do we estimate the protobuf size?
@@ -742,7 +823,7 @@ bool FlightControllerPlugin::ReceiveAction()
   char buf[buf_size];
   int recvSize=0;
 	
-  recvSize = recvfrom(this->handle, buf, buf_size , 0, (struct sockaddr *)&this->remaddr, &this->remaddrlen);
+  recvSize = recvfrom(this->handle_rx, buf, buf_size , 0, (struct sockaddr *)&this->remaddr, &this->remaddrlen);
 
   if (recvSize < 0)
   {
@@ -761,25 +842,168 @@ bool FlightControllerPlugin::ReceiveAction()
   // Do the reassignment because protobuf needs string
   msg.assign(buf, recvSize);
   this->action.ParseFromString(msg);
-  gzdbg << " Motor Size " << this->action.motor_size() << std::endl;
-  gzdbg << " Motor 0 " << this->action.motor(0) << std::endl;
 
   return true; 
 }
-
 /////////////////////////////////////////////////
-void FlightControllerPlugin::SendState() const
+bool FlightControllerPluginArducopter::ReceiveMotorCommand()
 {
-  std::string buf;
-  this->state.SerializeToString(&buf);
+  // Added detection for whether ArduCopter is online or not.
+  // If ArduCopter is detected (receive of fdm packet from someone),
+  // then socket receive wait time is increased from 1ms to 1 sec
+  // to accomodate network jitter.
+  // If ArduCopter is not detected, receive call blocks for 1ms
+  // on each call.
+  // Once ArduCopter presence is detected, it takes this many
+  // missed receives before declaring the FCS offline.
 
-  //gzdbg << " Buf data= " << buf.data() << std::endl;
-  //gzdbg << "State Buf size= " << buf.size() << std::endl;
-  ::sendto(this->handle,
-           buf.data(),
-           buf.size(), 0,
-		   (struct sockaddr *)&this->remaddr, this->remaddrlen); 
+
+  ServoPacket pkt;
+  int waitMs = 1;
+  if (this->arduCopterOnline)
+  {
+    // increase timeout for receive once we detect a packet from
+    // ArduCopter FCS.
+    waitMs =1000;
+  }
+  else
+  {
+    // Otherwise skip quickly and do not set control force.
+    waitMs = 1;
+  }
+  ssize_t recvSize =this->Recv(&pkt, sizeof(ServoPacket), waitMs);
+  //  gzdbg << "Drained 1 packet with "<< recvSize << " data" << std::endl;
+
+  //Drain the socket in the case we're backed up
+  int counter = 0;
+  ServoPacket last_pkt;
+  ssize_t recvSize_last = 1;
+  while (true)
+  {
+    // last_pkt = pkt;
+    
+    recvSize_last =this->Recv(&pkt, sizeof(ServoPacket), 0ul);
+    if (recvSize_last == -1)
+    {
+      break;
+    }
+    gzdbg << "Drained n packets: " << counter << " with "<< recvSize_last << " data" <<std::endl;
+    counter++;
+    pkt = last_pkt;
+    recvSize = recvSize_last;
+  }
+  if (counter > 0)
+  {
+    gzdbg << "Drained n packets: " << counter << std::endl;
+  }
+this->connectionTimeoutMaxCount = 10;
+  ssize_t expectedPktSize =
+    sizeof(pkt.motorSpeed[0])*this->numActuators;
+  if ((recvSize == -1) || (recvSize < expectedPktSize))
+  {
+    gazebo::common::Time::NSleep(100);
+    if (this->arduCopterOnline )
+    {
+      gzwarn << "Broken ArduCopter connection, count ["
+             << this->connectionTimeoutCount
+             << "/" << this->connectionTimeoutMaxCount
+             << "]\n";
+      if (++this->connectionTimeoutCount >
+        this->connectionTimeoutMaxCount)
+      {
+        this->connectionTimeoutCount = 0;
+        this->arduCopterOnline = false;
+        gzwarn << "Broken ArduCopter connection, resetting motor control.\n";
+      }
+    }
+    return false;
+  }
+  else
+  {
+    if (!this->arduCopterOnline)
+    {
+      gzdbg << "ArduCopter controller online detected.\n";
+      // made connection, set some flags
+      this->connectionTimeoutCount = 0;
+      this->arduCopterOnline = true;
+    }
+    if (recvSize < expectedPktSize)
+    {
+      gzerr << "got less than model needs. Got: " << recvSize << "commands, expected size: " << expectedPktSize << "\n";
+            return false;
+    }
+    this->connectionTimeoutCount = 0;
+    this->action.Clear();
+    for(unsigned int i =0; i<this->numActuators;i++){
+        this->action.add_motor(pkt.motorSpeed[i]);
+    }
+    gzdbg << " Motor Size " << this->action.motor_size() << std::endl;
+    gzdbg << " Motor 0 " << pkt.motorSpeed[0] << std::endl;
+    
+  }
+    return true;
 }
+/////////////////////////////////////////////////
+void FlightControllerPluginArducopter::SendState() const
+{
+  fdmPacket pkt_send ;
+  // ignition::math::Pose3d gazeboToNED(0, 0, 0, IGN_PI, 0, 0);
 
+  // // model world pose brings us to model, x-forward, y-left, z-up
+  // // adding gazeboToNED gets us to the x-forward, y-right, z-down
+  // ignition::math::Pose3d worldToModel = gazeboToNED +
+    ;
+
+  // get transform from world NED to Model frame
+  ignition::math::Pose3d pose_drone = this->model->WorldPose();
+
+  // gzerr << "ned to model [" << pose_drone << "]\n";
+
+  // N
+  pkt_send.positionXYZ[0] = pose_drone.Pos().X();
+
+  // E
+  pkt_send.positionXYZ[1] = pose_drone.Pos().Y();
+
+  // D
+  pkt_send.positionXYZ[2] = pose_drone.Pos().Z();
+
+  ignition::math::Vector3d velGazeboWorldFrame =
+    this->model->GetLink()->WorldLinearVel();
+  // ignition::math::Vector3d velNEDFrame =
+  //   gazeboToNED.Rot().RotateVectorReverse(velGazeboWorldFrame);
+  pkt_send.velocityXYZ[0] = velGazeboWorldFrame.X();
+  pkt_send.velocityXYZ[1] = velGazeboWorldFrame.Y();
+  pkt_send.velocityXYZ[2] = velGazeboWorldFrame.Z();
+
+  for(unsigned int i = 0; i<4;i++){
+    if(i<3){
+      pkt_send.imuAngularVelocityRPY[i]=this->state.imu_angular_velocity_rpy(i);
+      pkt_send.imuLinearAccelerationXYZ[i]=this->state.imu_linear_acceleration_xyz(i);
+    }
+    pkt_send.imuOrientationQuat[i]=this->state.imu_orientation_quat(i);
+  }
+  pkt_send.timestamp = this->world->SimTime().Double();
+  send(this->handle_tx, &pkt_send, sizeof(pkt_send), 0);
+  // sendto(this->handle_tx, &pkt_send, sizeof(pkt_send), 0,(struct sockaddr *)&this->sockaddr_python,sizeof(this->sockaddr_python));
+}
+ssize_t FlightControllerPluginArducopter::Recv(void *_buf, const size_t _size, uint32_t _timeoutMs)
+  {
+    fd_set fds;
+    struct timeval tv;
+
+    FD_ZERO(&fds);
+    FD_SET(this->handle_rx, &fds);
+
+    tv.tv_sec = _timeoutMs / 1000;
+    tv.tv_usec = (_timeoutMs % 1000) * 1000UL;
+
+    if (select(this->handle_rx+1, &fds, NULL, NULL, &tv) != 1)
+    {
+        return -1;
+    }
+
+    return recv(this->handle_rx, _buf, _size, 0);
+  }
 
 

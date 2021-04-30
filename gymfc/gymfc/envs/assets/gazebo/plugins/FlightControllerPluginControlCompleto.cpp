@@ -491,8 +491,6 @@ void FlightControllerPlugin::LoadDigitalTwin()
   }
 
   // Create the ball joint to attach the aircraft too
-  //ACA COMENTO PARA EVITAR QUE QUEDE FIJO
-  /*
   gazebo::physics::JointPtr joint;
   joint = this->world->Physics()->CreateJoint("ball", supportModel);
   joint->SetName("ball_joint");
@@ -542,7 +540,7 @@ void FlightControllerPlugin::LoadDigitalTwin()
   joint->Init();
   
   // This is actually great because we've removed the ground plane so there is no possible collision
-  gzdbg << "Aircraft model fixed to world\n";*/
+  gzdbg << "Aircraft model fixed to world\n";
 }
 
 void FlightControllerPlugin::FlushSensors()
