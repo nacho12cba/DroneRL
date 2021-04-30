@@ -12,10 +12,12 @@ from gymfc_nf.utils.log import make_header
 from gymfc_nf.policies import PpoBaselinesPolicy
 
 def generate_inputs(num_trials, max_rate, seed):
-    inputs = []
     np.random.seed(seed)
     for i in range(num_trials):
-        inputs.append(np.random.normal(-15, 15, size=3))
+        index = np.random.randint(0,3)
+        setpoints = np.zeros(3)
+        setpoints[index] = np.random.normal(-60,60)
+        inputs.append(setpoints)
     return inputs
 
 def quaternion_to_euler(quat,X_ant,Y_ant,Z_ant):

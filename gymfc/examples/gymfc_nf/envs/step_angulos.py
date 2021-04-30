@@ -72,5 +72,8 @@ class StepEnvAngle(RewardEnvAngle):
         return self.np_random.normal(0, self.max_rate, size=3)
 
     def sample_angle_target(self):
-        return self.np_random.normal(self.min_angle,self.max_angle,size=3)
+        index = np.random.randint(low =0,high=3)
+        retorno = np.zeros(3)
+        retorno[index] = self.np_random.normal(self.min_angle,self.max_angle)
+        return retorno
 
