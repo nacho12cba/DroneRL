@@ -71,7 +71,6 @@ def flight(checkpoint_path,env,num_trials=1,inputs=[[0,0,0]]):
 
                 if done:
                     break
-            
             f, ax = plt.subplots(5, sharex=True, sharey=False)
             plt.suptitle('Metricas de vuelo')
             plt.setp([a.get_xticklabels() for a in f.axes[:-1]], visible=False)
@@ -99,8 +98,8 @@ if __name__ == "__main__":
     seed = np.random.randint(0, 1e6) if seed_in < 0 else seed_in
 
     gym_id = "gymfc_nf-step-v1"
-    ckpt_path = '/home/puriqgpu/DroneRL/model/checkpoints/ppo1-gymfc_nf-step-v1-10003968.ckpt'
-    twin = "./gymfc_nf/twins/nf1-sitl/model.sdf"
+    ckpt_path = '/home/puriqgpu/DroneRL/model/checkpoints/ppo1-gymfc_nf-step-v1-9902592.ckpt'
+    twin = "./gymfc_nf/twins/nf1/model.sdf"
 
 
     env = gym.make(gym_id)
@@ -109,7 +108,7 @@ if __name__ == "__main__":
     env.render()
 
     num_trials = 1
-    inputs = [np.array([100,-200,150])] #generate_inputs(num_trials=num_trials,max_rate=env.max_rate,seed=seed)
+    inputs = [np.array([0,0,100])] #generate_inputs(num_trials=num_trials,max_rate=env.max_rate,seed=seed)
 
     flight(checkpoint_path=ckpt_path,env=env,num_trials=num_trials,inputs=inputs)
 
