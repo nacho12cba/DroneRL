@@ -749,7 +749,7 @@ void FlightControllerPluginArducopter::WaitForSensorsThenSend()
   boost::mutex::scoped_lock lock(g_CallbackMutex);
   while (this->sensorCallbackCount < 0)
   {
-    gzdbg << "Callback count = " << this->sensorCallbackCount << std::endl;
+    //gzdbg << "Callback count = " << this->sensorCallbackCount << std::endl;
     this->callbackCondition.wait(lock);
   }
   /*
@@ -828,7 +828,7 @@ bool FlightControllerPluginArducopter::ReceiveAction()
   {
     return false;
   }
-  gzdbg << "Size " << recvSize << " Data " << buf[0] << std::endl;
+  //gzdbg << "Size " << recvSize << " Data " << buf[0] << std::endl;
   /*
   for (int i = 0; i < recvSize; ++i)
   {
@@ -936,8 +936,8 @@ this->connectionTimeoutMaxCount = 10;
     for(unsigned int i =0; i<this->numActuators;i++){
         this->action.add_motor(pkt.motorSpeed[i]);
     }
-    gzdbg << " Motor Size " << this->action.motor_size() << std::endl;
-    gzdbg << " Motor 0 " << pkt.motorSpeed[0] << std::endl;
+    //gzdbg << " Motor Size " << this->action.motor_size() << std::endl;
+    //gzdbg << " Motor 0 " << pkt.motorSpeed[0] << std::endl;
     
   }
     return true;
