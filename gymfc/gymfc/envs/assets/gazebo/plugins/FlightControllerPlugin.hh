@@ -46,7 +46,7 @@ namespace gazebo
   static const std::string kDefaultEscSubTopic = "/aircraft/sensor/esc";
  // TODO Change link name to CoM
   const std::string DIGITAL_TWIN_ATTACH_LINK = "base_link";
-  const std::string kTrainingRigModelName = "attitude_control_training_rig";
+  const std::string kTrainingRigModelName = "attitude_control_training_rig_control_completo"; //esto lo cambié para intentar que use un control rig que no tenga fijo el drone, es sólo prueba
 
   const std::string kAircraftConfigFileName = "libAircraftConfigPlugin.so";
 
