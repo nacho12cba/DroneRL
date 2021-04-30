@@ -6,7 +6,7 @@
 	<pose>0 0 0 0 0 0</pose> 
     <link name="pivot">
    
-        <!-- Uncomment for debugging
+        <!-- Uncomment for debugging-->
       <visual name="pivot_visual">
         <pose>0 0 0 0 -0 0</pose>
         <geometry>
@@ -29,11 +29,11 @@
          out how to do this programmically. 
 
         See http://answers.gazebosim.org/question/22102/how-to-use-world-as-a-joint-link-programmically/ -->
-	<joint name="base_joint" type="fixed">
+	 <!-- <joint name="base_joint" type="fixed">
 		<parent>world</parent>
 		<child>pivot</child>
 		<pose>0 0 0 0 0 0</pose>
-	</joint>
+	</joint> -->
 
   </model>
 </sdf>

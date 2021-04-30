@@ -57,9 +57,9 @@ def flight(checkpoint_path,env,num_trials=1,inputs=[[0,0,0]]):  ##una función, 
                 
                 
                 #if env.sim_time > 100: 
-                #ob, reward, done,  _ = env.step(ac) ##entiendo que asigna a las variables ob, reward, done, _, algo que retorna el step del entorno cuando toma como argumento la acción
+                ob, reward, done,  _ = env.step(ac) ##entiendo que asigna a las variables ob, reward, done, _, algo que retorna el step del entorno cuando toma como argumento la acción
                 #else: ob, reward, done,  _ = env.step([100,100,100,100])                                   ##necesito buscar la función step. En base.py hay una función step, así que supongo que env siempre va a heredar de base.py. 
-                ob, reward, done,  _ = env.step([0.7,0.7,0.7,0.7])                                    ##la step de base.py devuelve: return state, reward, done, {}. No sé qué es llaves, pero bueno. Algo nulo, pero no sé por qué se correspondería con el _
+                #ob, reward, done,  _ = env.step([0.7,0.7,0.7,0.7])                                    ##la step de base.py devuelve: return state, reward, done, {}. No sé qué es llaves, pero bueno. Algo nulo, pero no sé por qué se correspondería con el _
                                                     ##además acá ejecuta el paso de simulación, que en teoría devuelve la información de estado resultante
                                                     ##así que en el step debería consultarse la información de "medición" que necesito
                                                     ##step_sim y _step_sim están en fc_env.py
@@ -117,7 +117,7 @@ if __name__ == "__main__":
 
     gym_id = "gymfc_nf-step-v1"
     ckpt_path = '/home/intigpu/DroneRL/model/checkpoints/ppo1-gymfc_nf-step-v1-10003968.ckpt'
-    twin = "./gymfc_nf/twins/nf1-sitl/model.sdf"
+    twin = "./gymfc_nf/twins/nf1/model.sdf"
 
 
     env = gym.make(gym_id)

@@ -491,9 +491,8 @@ void FlightControllerPlugin::LoadDigitalTwin()
   }
 
   // Create the ball joint to attach the aircraft too
-  //ACA COMENTO PARA EVITAR QUE QUEDE FIJO
-  /*
-  gazebo::physics::JointPtr joint;
+  
+  /* gazebo::physics::JointPtr joint;
   joint = this->world->Physics()->CreateJoint("ball", supportModel);
   joint->SetName("ball_joint");
   joint->Attach(supportModel->GetLink("pivot"), centerOfThrustReferenceLink);
@@ -539,10 +538,10 @@ void FlightControllerPlugin::LoadDigitalTwin()
 
   }
 
-  joint->Init();
+  joint->Init();*/
   
   // This is actually great because we've removed the ground plane so there is no possible collision
-  gzdbg << "Aircraft model fixed to world\n";*/
+  gzdbg << "Aircraft model NOT fixed to world\n";
 }
 
 void FlightControllerPlugin::FlushSensors()
@@ -636,18 +635,18 @@ void FlightControllerPlugin::LoopThread()
     //gzdbg << "Callback count " << this->sensorCallbackCount << std::endl;
     //Forward the motor commands from the agent to each motor
     cmd_msgs::msgs::MotorCommand cmd;
-    gzdbg << "Sending motor commands to digital twin" << std::endl;
+    //gzdbg << "Sending motor commands to digital twin" << std::endl;
     for (unsigned int i = 0; i < this->numActuators; i++)
     {
-      gzdbg << i << "=" << this->action.motor(i) << std::endl;
+      //gzdbg << i << "=" << this->action.motor(i) << std::endl;
       cmd.add_motor(this->action.motor(i));
     }
-    gzdbg << "Publishing motor command\n";
+    //gzdbg << "Publishing motor command\n";
     this->cmdPub->Publish(cmd);
-    gzdbg << "Done publishing motor command\n";
+    //gzdbg << "Done publishing motor command\n";
     // Triggers other plugins to publish
     this->world->Step(1);
-    gzdbg << "Waiting...\n";
+    //gzdbg << "Waiting...\n";
     this->WaitForSensorsThenSend();
 	}
 }
@@ -748,7 +747,7 @@ bool FlightControllerPlugin::ReceiveAction()
   {
     return false;
   }
-  gzdbg << "Size " << recvSize << " Data " << buf[0] << std::endl;
+  //gzdbg << "Size " << recvSize << " Data " << buf[0] << std::endl;
   /*
   for (int i = 0; i < recvSize; ++i)
   {
@@ -761,8 +760,8 @@ bool FlightControllerPlugin::ReceiveAction()
   // Do the reassignment because protobuf needs string
   msg.assign(buf, recvSize);
   this->action.ParseFromString(msg);
-  gzdbg << " Motor Size " << this->action.motor_size() << std::endl;
-  gzdbg << " Motor 0 " << this->action.motor(0) << std::endl;
+  //gzdbg << " Motor Size " << this->action.motor_size() << std::endl;
+  //gzdbg << " Motor 0 " << this->action.motor(0) << std::endl;
 
   return true; 
 }

@@ -6,7 +6,7 @@
 	<pose>0 0 0 0 0 0</pose> 
     <link name="pivot">
    
-        <!-- Uncomment for debugging-->
+        <!-- Uncomment for debugging
       <visual name="pivot_visual">
         <pose>0 0 0 0 -0 0</pose>
         <geometry>
@@ -20,7 +20,7 @@
             <uri>__default__</uri>
           </script>
         </material>
-      </visual> 
+      </visual> -->
    
     </link>
 
@@ -30,12 +30,12 @@
 
         See http://answers.gazebosim.org/question/22102/how-to-use-world-as-a-joint-link-programmically/ -->
 	
-  <!-- comento las lineas que están debajo para ver si esto es la fijación espacial
+  <!-- comento las lineas que están debajo para ver si esto es la fijación espacial-->
   <joint name="base_joint" type="fixed">
 		<parent>world</parent>
 		<child>pivot</child>
 		<pose>0 0 0 0 0 0</pose>
-	</joint> -->
+	</joint> 
 
   </model>
 </sdf>

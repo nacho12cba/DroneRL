@@ -596,10 +596,10 @@ void FlightControllerPluginArducopter::LoadDigitalTwin()
 
   }
 
-  joint->Init();
+  joint->Init();*/
   
   // This is actually great because we've removed the ground plane so there is no possible collision
-  gzdbg << "Aircraft model fixed to world\n";*/ 
+  gzdbg << "Aircraft model NOT fixed to world\n";
 }
 
 void FlightControllerPluginArducopter::FlushSensors()
@@ -683,8 +683,8 @@ void FlightControllerPluginArducopter::LoopThread()
       this->SendState();
       // gzdbg << "Done publishing motor command\n";
       // Triggers other plugins to publish
-      gzdbg << "Waiting...\n";
-    gzdbg << "Callback count " << this->sensorCallbackCount << std::endl;
+      //gzdbg << "Waiting...\n";
+    //gzdbg << "Callback count " << this->sensorCallbackCount << std::endl;
     }
     // }
     
