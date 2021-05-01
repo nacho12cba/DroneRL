@@ -63,7 +63,6 @@ gymfc/gymfc/envs/assets/gazebo/plugins/build/CMakeFiles/progress.marks
 gymfc/gymfc/envs/assets/gazebo/plugins/build/CMakeFiles/sensor_msgs.dir
 gymfc/gymfc/envs/assets/gazebo/plugins/build/CMakeFiles/TargetDirectories.txt
 gymfc/gymfc/envs/assets/gazebo/plugins/build/CMakeTmp/test_freeimage.c
-gymfc/examples/openai-baseline/
 gymfc/examples/wandb/debug-internal.log
 gymfc/examples/wandb/debug.log
 gymfc/examples/wandb/latest-run
@@ -102,3 +101,6 @@ models/baselines_909623c_20210427-150552
 models/baselines_909623c_20210427-204439
 models/baselines_909623c_20210427-211433
 models/baselines_909623c_20210427-214146
+**/vscode
+neuroflight/.vscode
+neuroflight/src/.vscode
