@@ -492,7 +492,7 @@ void FlightControllerPlugin::LoadDigitalTwin()
 
   // Create the ball joint to attach the aircraft too
   
-  /* gazebo::physics::JointPtr joint;
+  gazebo::physics::JointPtr joint;
   joint = this->world->Physics()->CreateJoint("ball", supportModel);
   joint->SetName("ball_joint");
   joint->Attach(supportModel->GetLink("pivot"), centerOfThrustReferenceLink);
@@ -538,7 +538,7 @@ void FlightControllerPlugin::LoadDigitalTwin()
 
   }
 
-  joint->Init();*/
+  joint->Init();
   
   // This is actually great because we've removed the ground plane so there is no possible collision
   gzdbg << "Aircraft model NOT fixed to world\n";

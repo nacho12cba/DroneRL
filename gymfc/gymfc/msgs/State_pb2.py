@@ -48,7 +48,7 @@ _STATE_STATUSCODE = _descriptor.EnumDescriptor(
 _sym_db.RegisterEnumDescriptor(_STATE_STATUSCODE)
 
 
-_STATE = _descriptor.Descriptor(
+_STATE = _descriptor.Descriptor(  #entiendo que control es lo que se manda, tiene nombre "State", ese full name raro. Fields es un arreglo que tiene todas las cosas interesantes: sim_time, imu_angular_velocity_rpy, imu_linear_acceleration_xyz imu_orientation_quat
   name='State',
   full_name='gymfc.msgs.State',
   filename=None,

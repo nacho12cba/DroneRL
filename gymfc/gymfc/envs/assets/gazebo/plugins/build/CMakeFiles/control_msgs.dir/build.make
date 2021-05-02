@@ -68,15 +68,15 @@ MotorCommand.pb.h: MotorCommand.pb.cc
 CMakeFiles/control_msgs.dir/MotorCommand.pb.cc.o: CMakeFiles/control_msgs.dir/flags.make
 CMakeFiles/control_msgs.dir/MotorCommand.pb.cc.o: MotorCommand.pb.cc
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/intigpu/DroneRL/gymfc/gymfc/envs/assets/gazebo/plugins/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/control_msgs.dir/MotorCommand.pb.cc.o"
-	/usr/lib/ccache/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/control_msgs.dir/MotorCommand.pb.cc.o -c /home/intigpu/DroneRL/gymfc/gymfc/envs/assets/gazebo/plugins/build/MotorCommand.pb.cc
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/control_msgs.dir/MotorCommand.pb.cc.o -c /home/intigpu/DroneRL/gymfc/gymfc/envs/assets/gazebo/plugins/build/MotorCommand.pb.cc
 
 CMakeFiles/control_msgs.dir/MotorCommand.pb.cc.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/control_msgs.dir/MotorCommand.pb.cc.i"
-	/usr/lib/ccache/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/intigpu/DroneRL/gymfc/gymfc/envs/assets/gazebo/plugins/build/MotorCommand.pb.cc > CMakeFiles/control_msgs.dir/MotorCommand.pb.cc.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/intigpu/DroneRL/gymfc/gymfc/envs/assets/gazebo/plugins/build/MotorCommand.pb.cc > CMakeFiles/control_msgs.dir/MotorCommand.pb.cc.i
 
 CMakeFiles/control_msgs.dir/MotorCommand.pb.cc.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/control_msgs.dir/MotorCommand.pb.cc.s"
-	/usr/lib/ccache/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/intigpu/DroneRL/gymfc/gymfc/envs/assets/gazebo/plugins/build/MotorCommand.pb.cc -o CMakeFiles/control_msgs.dir/MotorCommand.pb.cc.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/intigpu/DroneRL/gymfc/gymfc/envs/assets/gazebo/plugins/build/MotorCommand.pb.cc -o CMakeFiles/control_msgs.dir/MotorCommand.pb.cc.s
 
 CMakeFiles/control_msgs.dir/MotorCommand.pb.cc.o.requires:
 

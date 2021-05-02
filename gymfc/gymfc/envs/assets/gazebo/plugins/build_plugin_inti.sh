@@ -8,5 +8,5 @@ cmake ../
 make
 # rm -r $HOME/.local/lib/python3.6/site-packages/gymfc/envs/assets/gazebo/plugins/build
 # cp -r ../build $HOME/lib/python3.6/site-packages/gymfc/envs/assets/gazebo/plugins/build
-mv ../build/*.so /usr/local/lib/gazebo-10/plugins/
+cp ../build/*.so /usr/local/lib/gazebo-10/plugins/
 cd ..

@@ -60,15 +60,15 @@ include CMakeFiles/AircraftConfigPlugin.dir/flags.make
 CMakeFiles/AircraftConfigPlugin.dir/AircraftConfigPlugin.cpp.o: CMakeFiles/AircraftConfigPlugin.dir/flags.make
 CMakeFiles/AircraftConfigPlugin.dir/AircraftConfigPlugin.cpp.o: ../AircraftConfigPlugin.cpp
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/intigpu/DroneRL/gymfc/gymfc/envs/assets/gazebo/plugins/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/AircraftConfigPlugin.dir/AircraftConfigPlugin.cpp.o"
-	/usr/lib/ccache/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/AircraftConfigPlugin.dir/AircraftConfigPlugin.cpp.o -c /home/intigpu/DroneRL/gymfc/gymfc/envs/assets/gazebo/plugins/AircraftConfigPlugin.cpp
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/AircraftConfigPlugin.dir/AircraftConfigPlugin.cpp.o -c /home/intigpu/DroneRL/gymfc/gymfc/envs/assets/gazebo/plugins/AircraftConfigPlugin.cpp
 
 CMakeFiles/AircraftConfigPlugin.dir/AircraftConfigPlugin.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/AircraftConfigPlugin.dir/AircraftConfigPlugin.cpp.i"
-	/usr/lib/ccache/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/intigpu/DroneRL/gymfc/gymfc/envs/assets/gazebo/plugins/AircraftConfigPlugin.cpp > CMakeFiles/AircraftConfigPlugin.dir/AircraftConfigPlugin.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/intigpu/DroneRL/gymfc/gymfc/envs/assets/gazebo/plugins/AircraftConfigPlugin.cpp > CMakeFiles/AircraftConfigPlugin.dir/AircraftConfigPlugin.cpp.i
 
 CMakeFiles/AircraftConfigPlugin.dir/AircraftConfigPlugin.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/AircraftConfigPlugin.dir/AircraftConfigPlugin.cpp.s"
-	/usr/lib/ccache/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/intigpu/DroneRL/gymfc/gymfc/envs/assets/gazebo/plugins/AircraftConfigPlugin.cpp -o CMakeFiles/AircraftConfigPlugin.dir/AircraftConfigPlugin.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/intigpu/DroneRL/gymfc/gymfc/envs/assets/gazebo/plugins/AircraftConfigPlugin.cpp -o CMakeFiles/AircraftConfigPlugin.dir/AircraftConfigPlugin.cpp.s
 
 CMakeFiles/AircraftConfigPlugin.dir/AircraftConfigPlugin.cpp.o.requires:
 

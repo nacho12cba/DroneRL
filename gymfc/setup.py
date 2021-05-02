@@ -18,7 +18,7 @@ class BuildGazeboPlugins(DistutilsBuild):
         # This is a helper script to build the plugins which can also be 
         # manually called if installing by hand with pip in edit/development 
         # mode.
-        build_plugin_script = './build_plugin.sh'
+        build_plugin_script = './build_plugin_inti.sh' #cambiado también
         p = subprocess.Popen(build_plugin_script, cwd=plugin_dir, shell=True) 
         # Wait until the process completes
         p.wait()
@@ -41,8 +41,8 @@ setup(name='gymfc',
       packages=find_packages(),
       package_data={'gymfc': [
           'gymfc.ini',
-          'envs/assets/gazebo/models/attitude_control_training_rig_control_completo/*.config', ##cambiados temporalmente para intentar despegar
-          'envs/assets/gazebo/models/attitude_control_training_rig_control_completo/*.sdf', ##cambiados temporalmente para intentar despegar
+          'envs/assets/gazebo/models/attitude_control_training_rig/*.config', ##cambiados temporalmente para intentar despegar
+          'envs/assets/gazebo/models/attitude_control_training_rig/*.sdf', ##cambiados temporalmente para intentar despegar
           'envs/assets/gazebo/worlds/*.world',
           'envs/assets/gazebo/plugins/build/*.so'
       ]},
