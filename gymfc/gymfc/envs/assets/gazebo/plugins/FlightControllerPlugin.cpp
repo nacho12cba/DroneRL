@@ -217,7 +217,6 @@ void FlightControllerPlugin::LoadVars()
 
   // Default port can be read in from an environment variable
   // This allows multiple instances to be run
-  
   int port = 9002;
   if(const char* env_p =  std::getenv(ENV_SITL_PORT))
   {
@@ -491,8 +490,7 @@ void FlightControllerPlugin::LoadDigitalTwin()
   }
 
   // Create the ball joint to attach the aircraft too
-  
-  /* gazebo::physics::JointPtr joint;
+  gazebo::physics::JointPtr joint;
   joint = this->world->Physics()->CreateJoint("ball", supportModel);
   joint->SetName("ball_joint");
   joint->Attach(supportModel->GetLink("pivot"), centerOfThrustReferenceLink);
@@ -538,10 +536,10 @@ void FlightControllerPlugin::LoadDigitalTwin()
 
   }
 
-  joint->Init();*/
+  joint->Init();
   
   // This is actually great because we've removed the ground plane so there is no possible collision
-  gzdbg << "Aircraft model NOT fixed to world\n";
+  gzdbg << "Aircraft model fixed to world\n";
 }
 
 void FlightControllerPlugin::FlushSensors()
@@ -602,7 +600,7 @@ void FlightControllerPlugin::LoopThread()
 		bool ac_received = this->ReceiveAction();
         //ignition::math::Vector3d f = this->world->ModelByName(kTrainingRigModelName)->GetLink("pivot")->RelativeForce();
 
-    // gzdbg << "Received?" << ac_received << std::endl;
+    //gzdbg << "Received?" << ac_received << std::endl;
 		if (!ac_received){
         continue;
     }
@@ -610,27 +608,28 @@ void FlightControllerPlugin::LoopThread()
         /* XXX This is a way to get force applied to possibly use for reward   
 		 */
         this->ballJointForce = this->ballJoint->GetForceTorque(0).body1Force;
-        // gzdbg << "Force X=" << f.X() << " Y=" << f.Y() << " Z=" << f.Z() << std::endl;
-        // //ignition::math::Vector3d f2 = this->ballJoint->GetForceTorque(0).body2Force;
-        // gzdbg << "Force Body 2 X=" << f2.X() << " Y=" << f2.Y() << " Z=" << f2.Z() << std::endl;
+        //gzdbg << "Force X=" << f.X() << " Y=" << f.Y() << " Z=" << f.Z() << std::endl;
+        //ignition::math::Vector3d f2 = this->ballJoint->GetForceTorque(0).body2Force;
+        //gzdbg << "Force Body 2 X=" << f2.X() << " Y=" << f2.Y() << " Z=" << f2.Z() << std::endl;
         
 
 
     // Handle reset command
- if (this->world->Name().compare("default") == 0)
- {
+//  if (this->world->Name().compare("default") == 0)
+ // {
     if (this->action.world_control() == gymfc::msgs::Action::RESET)
     {
-      gzdbg << " Flushing sensors..." << std::endl;
+      //gzdbg << " Flushing sensors..." << std::endl;
       // Block until we get respone from sensors
       this->FlushSensors();
-      gzdbg << " Sensors flushed." << std::endl;
+      //gzdbg << " Sensors flushed." << std::endl;
       this->state.set_sim_time(this->world->SimTime().Double());
       this->state.set_status_code(gymfc::msgs::State_StatusCode_OK);
       this->SendState();
       continue;
     }
-  }
+  //}
+
     this->ResetCallbackCount();
     //gzdbg << "Callback count " << this->sensorCallbackCount << std::endl;
     //Forward the motor commands from the agent to each motor
@@ -694,7 +693,6 @@ void FlightControllerPlugin::WaitForSensorsThenSend()
   while (this->sensorCallbackCount < 0)
   {
         boost::this_thread::sleep(boost::posix_time::milliseconds(1000));
-
   }
   */
   //gzdbg << "Sending state"<<std::endl;
@@ -739,15 +737,15 @@ bool FlightControllerPlugin::ReceiveAction()
   //TODO What should the buf size be? How do we estimate the protobuf size?
   unsigned int buf_size = 1024;
   char buf[buf_size];
-  int recvSize=0;
-	
+
+	int recvSize;
   recvSize = recvfrom(this->handle, buf, buf_size , 0, (struct sockaddr *)&this->remaddr, &this->remaddrlen);
 
   if (recvSize < 0)
   {
     return false;
   }
-  //gzdbg << "Size " << recvSize << " Data " << buf[0] << std::endl;
+  //gzdbg << "Size " << recvSize << " Data " << buf << std::endl;
   /*
   for (int i = 0; i < recvSize; ++i)
   {
@@ -761,7 +759,7 @@ bool FlightControllerPlugin::ReceiveAction()
   msg.assign(buf, recvSize);
   this->action.ParseFromString(msg);
   //gzdbg << " Motor Size " << this->action.motor_size() << std::endl;
-  //gzdbg << " Motor 0 " << this->action.motor(0) << std::endl;
+  //gzdbg << " World Control " << this->action.world_control() << std::endl;
 
   return true; 
 }
@@ -779,6 +777,3 @@ void FlightControllerPlugin::SendState() const
            buf.size(), 0,
 		   (struct sockaddr *)&this->remaddr, this->remaddrlen); 
 }
-
-
-
