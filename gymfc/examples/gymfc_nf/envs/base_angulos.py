@@ -36,7 +36,7 @@ class BaseEnvAngle(FlightControlEnv, gym.Env):
         self.angle_anterior = [0,0,0]
 
         # Define the Gym action and observation spaces
-        self.action_space = spaces.Box(-np.ones(4), np.ones(4), dtype=np.float32)
+        self.action_space = spaces.Box(-np.ones(3), np.ones(3), dtype=np.float32)
         self.action = self.action_space.low 
         num_inputs = len(self.state_fn(self))
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(num_inputs,), 
@@ -123,15 +123,31 @@ class BaseEnvAngle(FlightControlEnv, gym.Env):
         t0 = +2.0 * (w * x + y * z)
         t1 = +1.0 - 2.0 * (x * x + y * y)
         X = math.degrees(math.atan2(t0, t1))
+        # if(abs(X-X_ant)>140):
+        #     if((X-X_ant)<0 and self.imu_angular_velocity_rpy[0]>0):
+        #         X = X+360*((np.abs(X_ant)-180)//360 +1)
+        #     if((X-X_ant)>0 and self.imu_angular_velocity_rpy[0]<0):
+        #         X = X-360*((np.abs(X_ant)-180)//360 +1)
+
         
         t2 = +2.0 * (w * y - z * x)
         t2 = +1.0 if t2 > +1.0 else t2
         t2 = -1.0 if t2 < -1.0 else t2
         Y = math.degrees(math.asin(t2))
+        # if(abs(Y-Y_ant)>140):
+        #     if((Y-Y_ant)<0 and self.imu_angular_velocity_rpy[1]>0):
+        #         Y = Y+360*((np.abs(Y_ant)-180)//360 +1)
+        #     if((Y-Y_ant)>0 and self.imu_angular_velocity_rpy[1]<0):
+        #         Y = Y-360*((np.abs(Y_ant)-180)//360 +1)
 
         t3 = +2.0 * (w * z + x * y)
         t4 = +1.0 - 2.0 * (y * y + z * z)
         Z = math.degrees(math.atan2(t3, t4))
+        # if(abs(Z-Z_ant)>140):
+        #     if((Z-Z_ant)<0 and self.imu_angular_velocity_rpy[0]>0):
+        #         Z = Z+360*((np.abs(Z_ant)-180)//360 +1)
+        #     if((Z-Z_ant)>0 and self.imu_angular_velocity_rpy[0]<0):
+        #         Z = Z-360*((np.abs(Z_ant)-180)//360 +1)
 
         return [X, Y, Z]
 

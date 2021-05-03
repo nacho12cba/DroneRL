@@ -41,8 +41,8 @@ setup(name='gymfc',
       packages=find_packages(),
       package_data={'gymfc': [
           'gymfc.ini',
-          'envs/assets/gazebo/models/attitude_control_training_rig_control_completo/*.config', ##cambiados temporalmente para intentar despegar
-          'envs/assets/gazebo/models/attitude_control_training_rig_control_completo/*.sdf', ##cambiados temporalmente para intentar despegar
+          'envs/assets/gazebo/models/attitude_control_training/*.config', ##cambiados temporalmente para intentar despegar
+          'envs/assets/gazebo/models/attitude_control_training/*.sdf', ##cambiados temporalmente para intentar despegar
           'envs/assets/gazebo/worlds/*.world',
           'envs/assets/gazebo/plugins/build/*.so'
       ]},

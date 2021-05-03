@@ -9,15 +9,17 @@ import gym
 from gymfc_nf.envs import *
 from gymfc_nf.utils.monitor import CheckpointMonitor
 from gymfc_nf.utils.log import make_header
-from gymfc_nf.policies import PpoBaselinesPolicy
+from gymfc_nf.policies import PpoBaselinesPolicyAngle
 
 def generate_inputs(num_trials, max_rate, seed):
+    inputs = []
     np.random.seed(seed)
     for i in range(num_trials):
-        index = np.random.randint(0,3)
-        setpoints = np.zeros(3)
-        setpoints[index] = np.random.normal(-60,60)
-        inputs.append(setpoints)
+        # index = np.random.randint(0,3)
+        # setpoints = np.zeros(3)
+        # setpoints[index] = np.random.normal(-60,60)
+        # inputs.append(setpoints)
+        inputs.append(np.random.normal(-60,60,3))
     return inputs
 
 def quaternion_to_euler(quat,X_ant,Y_ant,Z_ant):
@@ -48,7 +50,7 @@ if __name__ == "__main__":
                         help="File path of the aircraft digitial twin/model SDF.")
     parser.add_argument('--eval-dir', 
                         help="Directory where evaluation logs are saved, if different than default.")
-    parser.add_argument('--gym-id', default="gymfc_nf-step-v1")
+    parser.add_argument('--gym-id', default="gymfc_nf-step-v2")
     parser.add_argument('--num-trials', type=int, default=1)
     # Provide a seed so the same setpoint will be created. Useful for debugging
     parser.add_argument('--seed', help='RNG seed', type=int, default=-1)
@@ -86,7 +88,7 @@ if __name__ == "__main__":
             saver = tf.train.import_meta_graph(checkpoint_path + '.meta',
                                                clear_devices=True)
             saver.restore(sess, checkpoint_path)
-            pi = PpoBaselinesPolicy(sess)
+            pi = PpoBaselinesPolicyAngle(sess)
 
             es = []
             rs = []
@@ -109,12 +111,15 @@ if __name__ == "__main__":
                 sim_time = 0
                 actual = np.zeros(3)
                 angle_anterior = [0,0,0]
-
+                last_vel_error = np.zeros(3)
                 logs = []
                 while True:
-                    ac = pi.action(ob, env.sim_time, env.angular_rate_sp,
-                                   env.imu_angular_velocity_rpy)
-                    ob, reward, done,  _ = env.step(ac)
+                    ac = pi.action_angle(ob)
+                    target_vel = ac*env.max_rate
+                    error = ac - env.imu_angular_velocity_rpy
+                    delta_error = error-last_vel_error
+                    ac_vel = pi.action_vel(np.concatenate([error,delta_error]))
+                    ob, reward, done,  _ = env.step(ac_vel)
                     angle = quaternion_to_euler(env.imu_orientation_quat,angle_anterior[0],angle_anterior[1],angle_anterior[2])
 
                     # TODO (wfk) Should we standardize this log format? We could

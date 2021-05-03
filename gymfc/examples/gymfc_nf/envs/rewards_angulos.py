@@ -76,9 +76,11 @@ class RewardEnvAngle(BaseEnvAngle):
             e_penalty,
             # penalty for oversaturating the control output, without this 
             # the agent tends to generate binary outputs, i.e., [-1, 1].
-            -1e9 * np.sum(self.oversaturation_high()),
+            # -1e9 * np.sum(self.oversaturation_high()),
+            0,
             # penalty if the agent does nothing, i.e., refusing to 'play'
-            self.doing_nothing_penalty()
+            # self.doing_nothing_penalty()
+            0,
         ]
         self.ind_rewards = rewards
 
