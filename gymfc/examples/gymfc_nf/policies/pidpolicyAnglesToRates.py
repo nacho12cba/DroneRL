@@ -9,6 +9,7 @@ class pidpolicyAnglesToRates(Policy):
 
     def action(self, sim_time=0, desired=np.zeros(3), actual=np.zeros(3) ):
         angle_errors_to_rates_values = np.array(self.controller.calculate_motor_values(sim_time, desired, actual))
+        #print(angle_errors_to_rates_values)
         return angle_errors_to_rates_values
 
     def reset(self):
