@@ -29,5 +29,21 @@ if __name__ == '__main__':
     plot_motor_rpms(ax[4], t, rpms)
 
     ax[-1].set_xlabel("Time (s)")
+    plt.figure(1)
+    fig_1,ax_1 = plt.subplots(2,sharex=True, sharey=False)
+    for i in range(9):
+        if i<6:
+            ax_1[1].plot(t,fdata[:,i+1],label="ob{}".format(i+1))
+        else:
+            ax_1[0].plot(t,fdata[:,i+1],label="M{}".format(i+1))
+    ax_1[0].legend(loc='upper right', ncol=4)
+    ax_1[0].grid(True)
+    ax_1[1].legend(loc='upper right', ncol=4)
+    ax_1[1].grid(True)
+    plt.figure(2)
+    fig_2,ax_2  = plt.subplots(3,sharex =True,sharey = False)
+    pqr_ =(fdata[:,25:28])
+    pqr_sp_ = (fdata[:,28:31])
+    plot_rates(ax_2[:3], t, pqr_sp_, pqr_)
     plt.show()
 

@@ -13,7 +13,7 @@ import math
 
 def state_degrees_error_deltaerror_q(local):
     error_delta = local.measured_error - local.last_measured_error 
-    q = local.imu_orientation_quat
+    q = local.imu_angular_velocity_rpy
     return np.concatenate([local.measured_error, error_delta, q]) 
 
 def state_degrees_error_deltaerror(local):

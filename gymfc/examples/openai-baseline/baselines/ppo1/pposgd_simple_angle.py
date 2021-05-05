@@ -57,7 +57,7 @@ def traj_segment_generator(pi,pi_vel, env, horizon, stochastic, flight_log=None)
         acs[i] = ac_angle
         prevacs[i] = prevac
         target_vel =  ac_angle*env.max_rate
-        error_vel = ac_angle - env.imu_angular_velocity_rpy
+        error_vel = target_vel - env.imu_angular_velocity_rpy
         delta_error_vel = error_vel-last_err_vel
         state_angle  = np.concatenate([error_vel,delta_error_vel])
         last_err_vel = error_vel
@@ -79,6 +79,8 @@ def traj_segment_generator(pi,pi_vel, env, horizon, stochastic, flight_log=None)
                 flight_log.clear()
             ep_number += 1
             ob = env.reset()
+            if t%horizon != 0 :
+                t += horizon + t%horizon -1
         t += 1
 
 def add_vtarg_and_adv(seg, gamma, lam):

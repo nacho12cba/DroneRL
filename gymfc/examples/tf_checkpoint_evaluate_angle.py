@@ -10,38 +10,18 @@ from gymfc_nf.envs import *
 from gymfc_nf.utils.monitor import CheckpointMonitor
 from gymfc_nf.utils.log import make_header
 from gymfc_nf.policies import PpoBaselinesPolicyAngle
+from gymfc.tools.quaternion_to_angle import quaternion_to_angles
 
 def generate_inputs(num_trials, max_rate, seed):
     inputs = []
     np.random.seed(seed)
     for i in range(num_trials):
-        # index = np.random.randint(0,3)
-        # setpoints = np.zeros(3)
-        # setpoints[index] = np.random.normal(-60,60)
-        # inputs.append(setpoints)
-        inputs.append(np.random.normal(-60,60,3))
+        index = np.random.randint(0,3)
+        setpoints = np.zeros(3)
+        setpoints[index] = np.random.normal(-60,60)
+        inputs.append(setpoints)
+        # inputs.append(np.random.randint(-60,60,3))
     return inputs
-
-def quaternion_to_euler(quat,X_ant,Y_ant,Z_ant):
-    x = quat[1]
-    y = quat[2]
-    z = quat[3]
-    w = quat[0]
-    import math
-    t0 = +2.0 * (w * x + y * z)
-    t1 = +1.0 - 2.0 * (x * x + y * y)
-    X = math.degrees(math.atan2(t0, t1))
-
-    t2 = +2.0 * (w * y - z * x)
-    t2 = +1.0 if t2 > +1.0 else t2
-    t2 = -1.0 if t2 < -1.0 else t2
-    Y = math.degrees(math.asin(t2))
-
-    t3 = +2.0 * (w * z + x * y)
-    t4 = +1.0 - 2.0 * (y * y + z * z)
-    Z = math.degrees(math.atan2(t3, t4))
-
-    return [X, Y, Z]
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser("Monitor and evaluate Tensorflow checkpoints.")
@@ -116,11 +96,13 @@ if __name__ == "__main__":
                 while True:
                     ac = pi.action_angle(ob)
                     target_vel = ac*env.max_rate
-                    error = ac - env.imu_angular_velocity_rpy
+                    error = target_vel - env.imu_angular_velocity_rpy
                     delta_error = error-last_vel_error
                     ac_vel = pi.action_vel(np.concatenate([error,delta_error]))
                     ob, reward, done,  _ = env.step(ac_vel)
-                    angle = quaternion_to_euler(env.imu_orientation_quat,angle_anterior[0],angle_anterior[1],angle_anterior[2])
+                    angle = quaternion_to_angles(env.imu_orientation_quat,angle_anterior)
+                    last_vel_error = error.copy()
+                    angle_anterior = angle
 
                     # TODO (wfk) Should we standardize this log format? We could
                     # use NASA's SIDPAC channel format.
@@ -131,7 +113,9 @@ if __name__ == "__main__":
                             env.angle_sp.tolist() + #
                             env.y.tolist() + # Y is the output sent to the ESC
                             env.esc_motor_angular_velocity.tolist() +
-                            [reward])# The reward that would have been given for the action, can be helpful for debugging
+                            [reward]+
+                            env.imu_angular_velocity_rpy.tolist()+
+                            env.angular_rate_sp.tolist())# The reward that would have been given for the action, can be helpful for debugging
 
                     
                     e = angle - env.angle_sp

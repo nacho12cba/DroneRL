@@ -8,16 +8,16 @@ import gym
 from gymfc_nf.envs import *
 from gymfc_nf.utils.monitor import CheckpointMonitor
 from gymfc_nf.utils.log import make_header
-from gymfc_nf.policies import PpoBaselinesPolicy
+from gymfc_nf.policies import PpoBaselinesPolicyAngle
 import matplotlib.pyplot as plt
-
+from gymfc.tools.quaternion_to_angle import quaternion_to_angles
 from gymfc.tools.plot import *
 
 def generate_inputs(num_trials, max_rate, seed):
     inputs = []
     np.random.seed(seed)
     for i in range(num_trials):
-        inputs.append(np.random.normal(0, max_rate, size=3))
+        inputs.append(np.random.randint(-60, 60, size=3))
     return inputs
 
     
@@ -29,7 +29,7 @@ def flight(checkpoint_path,env,num_trials=1,inputs=[[0,0,0]]):
         saver = tf.train.import_meta_graph(checkpoint_path + '.meta',
                                             clear_devices=True)
         saver.restore(sess, checkpoint_path)
-        pi = PpoBaselinesPolicy(sess)
+        pi = PpoBaselinesPolicyAngle(sess)
         # graph=tf.get_default_graph()
         # graph_def = tf.GraphDef()
         # with tf.gfile.GFile(proto_buf_path, 'rb') as fid:
@@ -55,24 +55,33 @@ def flight(checkpoint_path,env,num_trials=1,inputs=[[0,0,0]]):
                 log_header = make_header(len(ob))
             sim_time = 0
             actual = np.zeros(3)
+            last_err_vel = np.array([0,0,0])
+            last_angle = [0,0,0]
 
             logs = []
             while True:
-                ac = pi.action(ob, env.sim_time, env.angular_rate_sp,
+                ac_angle = pi.action_angle(ob, env.sim_time, env.angular_rate_sp,
                                 env.imu_angular_velocity_rpy)
                 # ac = sess.run(y, feed_dict={x:[ob] })[0]
+                error_vel = [100,100,0] - env.imu_angular_velocity_rpy
+                delta_error = error_vel - last_err_vel
+                ac = pi.action_vel(np.concatenate([error_vel,delta_error]))
                 ob, reward, done,  _ = env.step(ac)
-
+                last_err_vel = error_vel
+                angle = quaternion_to_angles(env.imu_orientation_quat,last_angle)
+                last_angle = angle
                 # TODO (wfk) Should we standardize this log format? We could
                 # use NASA's SIDPAC channel format.
                 log = ([env.sim_time] +
                         ob.tolist() + # The observations are the NN input
-                        ac.tolist() + # The actions are the NN output
-                        env.imu_angular_velocity_rpy.tolist() + # Angular velocites
-                        env.angular_rate_sp.tolist() + #
+                        ac_angle.tolist() + # The actions are the NN output
+                        angle + # Angular velocites
+                        env.angle_sp.tolist() + #
                         env.y.tolist() + # Y is the output sent to the ESC
                         env.esc_motor_angular_velocity.tolist() +
-                        [reward])# The reward that would have been given for the action, can be helpful for debugging
+                        [reward]+
+                        env.imu_angular_velocity_rpy.tolist()+
+                        env.angular_rate_sp.tolist())# The reward that would have been given for the action, can be helpful for debugging
                 e = env.imu_angular_velocity_rpy - env.angular_rate_sp
                 es.append(e)
                 rs.append(reward)
@@ -85,17 +94,34 @@ def flight(checkpoint_path,env,num_trials=1,inputs=[[0,0,0]]):
             plt.setp([a.get_xticklabels() for a in f.axes[:-1]], visible=False)
             logs_array = np.array(logs)
             t = logs_array[:,0]
-            pqr =  logs_array[:,11:14]
-            pqr_sp =  logs_array[:,14:17]
+            pqr =  logs_array[:,10:13]
+            pqr_sp =  logs_array[:,13:16]
             plot_rates(ax[:3], t, pqr_sp, pqr)
 
-            us =  logs_array[:,17:21]
+            us =  logs_array[:,16:20]
             plot_u(ax[3], t, us)
 
-            rpms =  logs_array[:,21:25]
+            rpms =  logs_array[:,20:26]
             plot_motor_rpms(ax[4], t, rpms)
 
             ax[-1].set_xlabel("Time (s)")
+            plt.figure(1)
+            fig_1,ax_1 = plt.subplots(2,sharex=True, sharey=False)
+            for i in range(9):
+                if i<6:
+                    ax_1[1].plot(t,logs_array[:,i+1],label="ob{}".format(i+1))
+                else:
+                    ax_1[0].plot(t,logs_array[:,i+1],label="ac{}".format(i-6))
+            ax_1[0].legend(loc='upper right', ncol=4)
+            ax_1[0].grid(True)
+            ax_1[1].legend(loc='upper right', ncol=4)
+            ax_1[1].grid(True)
+            plt.figure(2)
+            fig_2,ax_2  = plt.subplots(3,sharex =True,sharey = False)
+            t = logs_array[:,0]
+            pqr_ =(logs_array[:,25:28])
+            pqr_sp_ = (logs_array[:,28:31])
+            plot_rates(ax_2[:3], t, pqr_sp_, pqr_)
             plt.show()
 
         env.close()
@@ -106,8 +132,8 @@ if __name__ == "__main__":
     seed_in = -10
     seed = np.random.randint(0, 1e6) if seed_in < 0 else seed_in
 
-    gym_id = "gymfc_nf-step-v1"
-    ckpt_path = '/home/puriqgpu/DroneRL/models/baselines_ef9da8f_20210504-172727/checkpoints/ppo1-gymfc_nf-step-v2-5712528.ckpt'
+    gym_id = "gymfc_nf-step-v2"
+    ckpt_path = '/home/puriqgpu/DroneRL/models/baselines_ef9da8f_20210504-172727/checkpoints/ppo1-gymfc_nf-step-v2-6305632.ckpt'
     twin = "./gymfc_nf/twins/nf1/model.sdf"
     proto_buf_path = '/home/puriqgpu/DroneRL/neuroflight/gen/graph/frozen_model.pb'
 
@@ -117,7 +143,7 @@ if __name__ == "__main__":
     env.render()
 
     num_trials = 1
-    inputs = [np.array([0,0,100])] #generate_inputs(num_trials=num_trials,max_rate=env.max_rate,seed=seed)
+    inputs = [np.array([0,0,0])] #generate_inputs(num_trials=num_trials,max_rate=env.max_rate,seed=seed)
 
     flight(checkpoint_path=ckpt_path,env=env,num_trials=num_trials,inputs=inputs)
 

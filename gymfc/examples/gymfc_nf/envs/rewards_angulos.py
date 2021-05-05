@@ -34,18 +34,18 @@ class RewardEnvAngle(BaseEnvAngle):
     def compute_reward(self):
 
         shaping = \
-            -np.sum(np.absolute(self.true_error)**2)
+            -np.sum(self.true_error**2)
         
         e_penalty = 0
         if self.prev_shaping is not None:
-            e_penalty = shaping + self.prev_shaping
-        if(self.prev_shaping == None):
-            self.prev_shaping = shaping
-        else:
-            self.prev_shaping += shaping
+            e_penalty = shaping 
+        # if(self.prev_shaping == None):
+        self.prev_shaping = shaping
+        # else:
+        #     self.prev_shaping += shaping
         for x in self.true_error:
             if(np.abs(x)<0.1):
-                e_penalty += 10
+                e_penalty += 100
 
         # Reward the agent for minimizing their control ouputs. 
         # In order to get the reward, the agent must be in the error band, 
@@ -80,11 +80,18 @@ class RewardEnvAngle(BaseEnvAngle):
             0,
             # penalty if the agent does nothing, i.e., refusing to 'play'
             # self.doing_nothing_penalty()
-            0,
+            self.excesive_angle_error()
         ]
         self.ind_rewards = rewards
 
         return np.sum(rewards)
+
+    def excesive_angle_error(self,penalty = 1e9):
+        total_penalty = 0
+        for e in self.true_error:
+            if np.abs(e) > 100:
+                total_penalty -=penalty
+        return total_penalty
 
     def doing_nothing_penalty(self, penalty=1e9):
         total_penalty = 0 

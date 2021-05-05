@@ -22,6 +22,8 @@ import gym
 import argparse
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 import tensorflow as tf
+import multiprocessing
+import sys
 
 tf.logging.set_verbosity(tf.logging.ERROR)
 def get_commit_hash():
@@ -47,7 +49,13 @@ def train(env, num_timesteps, seed, ckpt_dir=None,
     from baselines.common import set_global_seeds
     from baselines.ppo1 import pposgd_simple_angle
     import baselines.common.tf_util as U
-    sess = U.single_threaded_session()
+    ncpu = multiprocessing.cpu_count()
+    if sys.platform == 'darwin': ncpu //= 2
+    config = tf.ConfigProto(allow_soft_placement=True,
+                            intra_op_parallelism_threads=ncpu,
+                            inter_op_parallelism_threads=ncpu)
+
+    sess = tf.Session(config=config)
     sess.__enter__()
 
     rank = MPI.COMM_WORLD.Get_rank()

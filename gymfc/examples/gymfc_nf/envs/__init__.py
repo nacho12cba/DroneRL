@@ -20,8 +20,8 @@ register(
     kwargs={
         "max_rate": 100,
         "state_fn":state_degrees_error_deltaerror,
-        "pulse_width":2.048,
-        "max_sim_time": 4.608
+        "pulse_width":10.048,
+        "max_sim_time": 15.608
     }
 )
 
