@@ -57,7 +57,7 @@ typedef SSIZE_T ssize_t;
 #include <gazebo/physics/Base.hh>
 
 
-#include "FlightControllerPlugin.hh"
+#include "FlightControllerPluginControlCompleto.hh"
 
 #include "MotorCommand.pb.h"
 #include "EscSensor.pb.h"
@@ -448,20 +448,21 @@ void FlightControllerPlugin::LoadDigitalTwin()
   // It appears the inserted model is not available in the world
   // right away, maybe due to the message passing that occurs?
   // For now poll until its there in the world
-  unsigned int startModelCount = this->world->ModelCount();
-  this->world->InsertModelSDF(*this->sdfElement);
-  while (1)
-  {
-    unsigned int modelCount = this->world->ModelCount();
-    if (modelCount >= startModelCount + 1)
-    {
-      break;
-    } else {
-      gazebo::common::Time::MSleep(100);
-    }
-  }
+   unsigned int startModelCount = this->world->ModelCount();
+   this->world->InsertModelSDF(*this->sdfElement);
+   while (1)
+   {
+     unsigned int modelCount = this->world->ModelCount();
+     if (modelCount >= startModelCount + 1)
+     {
+       break;
+     } else {
+       gazebo::common::Time::MSleep(100);
+     }
+   }
 
-  // start parsing model
+  //start parsing model
+  
   const std::string modelName = this->modelElement->Get<std::string>("name");
   //gzdbg << "Found " << modelName << " model!" << std::endl;
 
@@ -471,27 +472,28 @@ void FlightControllerPlugin::LoadDigitalTwin()
     gzerr << "Could not access model " << modelName <<" from world"<<std::endl;
     return;
   }
-
+  
   if (this->world->Name().compare("default") != 0)
   {
       gzdbg << "Using dyno, not linking aircraft to world" << std::endl;
       return;
   }
 
-  physics::ModelPtr supportModel = this->world->ModelByName(kTrainingRigModelName);
-  if (!supportModel){
+   physics::ModelPtr supportModel = this->world->ModelByName(kTrainingRigModelName);
+   if (!supportModel){
     gzerr << "Could not find training rig model." << std::endl;
-    return;
-  }
+     return;
+   }
   
-  gazebo::physics::LinkPtr centerOfThrustReferenceLink;
-  centerOfThrustReferenceLink = FindLinkByName(model, this->centerOfThrustReferenceLinkName);
-  if (!centerOfThrustReferenceLink){
-    gzerr << "Could not find the CoT link" << std::endl;
-    return;
-  }
+   gazebo::physics::LinkPtr centerOfThrustReferenceLink;
+   centerOfThrustReferenceLink = FindLinkByName(model, this->centerOfThrustReferenceLinkName);
+   if (!centerOfThrustReferenceLink){
+     gzerr << "Could not find the CoT link" << std::endl;
+     return;
+   }
 
   // Create the ball joint to attach the aircraft too
+  
   gazebo::physics::JointPtr joint;
   joint = this->world->Physics()->CreateJoint("ball", supportModel);
   joint->SetName("ball_joint");
@@ -529,7 +531,7 @@ void FlightControllerPlugin::LoadDigitalTwin()
     gzdbg << "Setting link to center " << centerOfThrustReferenceLink->GetName() << std::endl;
     mBallConstraint = std::make_shared<dart::constraint::BallJointConstraint>(aircraftSkeleton->getBodyNode(
       centerOfThrustReferenceLink->GetName()), location);
-    dartLink->DARTWorld()->getConstraintSolver()->addConstraint(mBallConstraint);
+    //dartLink->DARTWorld()->getConstraintSolver()->addConstraint(mBallConstraint);
   } 
   else 
   {
@@ -538,10 +540,10 @@ void FlightControllerPlugin::LoadDigitalTwin()
 
   }
 
-  joint->Init();
+  //joint->Init();
   
   // This is actually great because we've removed the ground plane so there is no possible collision
-  gzdbg << "Aircraft model fixed to world\n";
+  gzdbg << "Aircraft model REALLY NOT fixed to world\n";
 }
 
 void FlightControllerPlugin::FlushSensors()
@@ -635,18 +637,18 @@ void FlightControllerPlugin::LoopThread()
     //gzdbg << "Callback count " << this->sensorCallbackCount << std::endl;
     //Forward the motor commands from the agent to each motor
     cmd_msgs::msgs::MotorCommand cmd;
-    gzdbg << "Sending motor commands to digital twin" << std::endl;
+    //gzdbg << "Sending motor commands to digital twin" << std::endl;
     for (unsigned int i = 0; i < this->numActuators; i++)
     {
-      gzdbg << i << "=" << this->action.motor(i) << std::endl;
+      //gzdbg << i << "=" << this->action.motor(i) << std::endl;
       cmd.add_motor(this->action.motor(i));
     }
-    gzdbg << "Publishing motor command\n";
+    //gzdbg << "Publishing motor command\n";
     this->cmdPub->Publish(cmd);
-    gzdbg << "Done publishing motor command\n";
+    //gzdbg << "Done publishing motor command\n";
     // Triggers other plugins to publish
     this->world->Step(1);
-    gzdbg << "Waiting...\n";
+    //gzdbg << "Waiting...\n";
     this->WaitForSensorsThenSend();
 	}
 }
@@ -694,6 +696,7 @@ void FlightControllerPlugin::WaitForSensorsThenSend()
   while (this->sensorCallbackCount < 0)
   {
         boost::this_thread::sleep(boost::posix_time::milliseconds(1000));
+
   }
   */
   //gzdbg << "Sending state"<<std::endl;
@@ -746,7 +749,7 @@ bool FlightControllerPlugin::ReceiveAction()
   {
     return false;
   }
-  gzdbg << "Size " << recvSize << " Data " << buf[0] << std::endl;
+  //gzdbg << "Size " << recvSize << " Data " << buf[0] << std::endl;
   /*
   for (int i = 0; i < recvSize; ++i)
   {
@@ -759,8 +762,8 @@ bool FlightControllerPlugin::ReceiveAction()
   // Do the reassignment because protobuf needs string
   msg.assign(buf, recvSize);
   this->action.ParseFromString(msg);
-  gzdbg << " Motor Size " << this->action.motor_size() << std::endl;
-  gzdbg << " Motor 0 " << this->action.motor(0) << std::endl;
+  //gzdbg << " Motor Size " << this->action.motor_size() << std::endl;
+  //gzdbg << " Motor 0 " << this->action.motor(0) << std::endl;
 
   return true; 
 }
@@ -778,3 +781,6 @@ void FlightControllerPlugin::SendState() const
            buf.size(), 0,
 		   (struct sockaddr *)&this->remaddr, this->remaddrlen); 
 }
+
+
+

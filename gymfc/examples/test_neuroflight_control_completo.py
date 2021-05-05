@@ -11,6 +11,7 @@ from gymfc_nf.utils.monitor import CheckpointMonitor
 from gymfc_nf.utils.log import make_header
 from gymfc_nf.policies import PpoBaselinesPolicy
 from gymfc_nf.policies import pidpolicyAnglesToRates
+from gymfc_nf.policies import pidpolicyPositionToAngles
 import matplotlib.pyplot as plt
 
 from gymfc.tools.plot import *
@@ -73,7 +74,12 @@ def flight(checkpoint_path,checkpoint_path_angles,env,num_trials=1,inputs=[[0,0,
         delta_time = 0.0                        ##usado para el cálculo de velocidades angulares
         printables = [0.0,0.0,0.0]              ##array auxiliar para impresión de valores de los arreglos
         target_angles = [0.0,0.0,0.0]           ##vector con valores de entrada del usuario para objetivos angulares 
+        target_position = [0.0,0.0,0.0]
         required_angular_rates = [0.0,0.0,0.0]  ##vector con velocidades angulares requeridas para alcanzar los objetivos angulares
+
+        position_error = [0.0,0.0,0.0] 
+        position = [0.0,0.0,0.0] 
+        
         #kx = [2.4, 33.24, 0.033]
         #ky = [4.2, 64.33, 0.059]
         #kz = [2, 5, 0.0]
@@ -83,11 +89,18 @@ def flight(checkpoint_path,checkpoint_path_angles,env,num_trials=1,inputs=[[0,0,
         #kx = [2.84, 3.7324, 0.3]
         #ky = [4.2, 5.7433, 0.4]
         #kz = [3.75, 1.6, 0.05]
-        kx = [1.2, 6.324, 0.033]
+        #kx = [1.2, 6.324, 0.033]
+        #ky = [2.1, 12.433, 0.059]
+        #kz = [1, 1, 0.0]
+        kx = [3, 5.824, 0.045]
         ky = [2.1, 12.433, 0.059]
-        kz = [1, 1, 0.0]
-        Pid_Policy = pidpolicyAnglesToRates.pidpolicyAnglesToRates(kx,ky,kz)
-        #Pid_Policy.reset()
+        kz = [1.35, 1, 0.1]
+        kx = [4.5, 0.05, 0.2]
+        ky = [4.5, 0.05, 0.2]
+        kz = [4.5, 0.05, 0.2]
+        Pid_Policy_Angles = pidpolicyAnglesToRates.pidpolicyAnglesToRates(kx,ky,kz)
+        Pid_Policy_Position = pidpolicyPositionToAngles.pidpolicyPositionToAngles(kx,ky,kz)
+        Pid_Policy.reset()
 
 
         log_header = ""
@@ -96,14 +109,23 @@ def flight(checkpoint_path,checkpoint_path_angles,env,num_trials=1,inputs=[[0,0,
             pi.reset()          ##se resetea la política? qué implica esto?
             piAngles.reset()
             ob = env.reset()    ##ob es el entorno reseteado
-
-            target_angles[0] = int(input("Enter target roll angle: ")) ##agrego para probar frenar la ejecución de las cosas
-            target_angles[1] = int(input("Enter target pitch angle: "))
-            target_angles[2] = int(input("Enter target yaw angle: "))
-            if (input("Enter wether to use neural networks for target rate calculation (true/false): ")) == "true":
-                PidOrNnAngles = True
+            position_or_angle_control = input("Do you wish to test angle (attitude) or position controller (att/pos)(defaults to position): ")
+            
+            if position_or_angle_control == "att":
+                target_angles[0] = int(input("Enter target roll angle: ")) ##agrego para probar frenar la ejecución de las cosas
+                target_angles[1] = int(input("Enter target pitch angle: "))
+                target_angles[2] = int(input("Enter target yaw angle: "))
+            
             else:
-                PidOrNnAngles = False
+                target_position[0] = int(input("Enter target x: "))
+                target_position[1] = int(input("Enter target y: "))
+                target_position[2] = int(input("Enter target z: "))
+            
+            #if (input("Enter wether to use neural networks for target rate calculation (true/false): ")) == "true":
+            #    PidOrNnAngles = True
+            #else:
+            #    PidOrNnAngles = False
+            
             # Override the random generatd input in the environment
             # must do this after the reset becuase this is normally where
             # this gets computed.
@@ -118,18 +140,25 @@ def flight(checkpoint_path,checkpoint_path_angles,env,num_trials=1,inputs=[[0,0,
             logs = []
             while True: 
                 
-                ##por acá yo debería calcular nuevo setpoint de acuerdo al ángulo objetivo, ángulo actual, max accel, blablabla
-                #required_angular_rates = np.divide(np.subtract(target_angles,q_to_euler(env.imu_orientation_quat)),[4.608-(delta_time/1000),4.608-(delta_time/1000),4.608-(delta_time/1000)])
-                if PidOrNnAngles:
-                    required_angular_rates = piAngles.action(env.sim_time, target_angles, q_to_euler(env.imu_orientation_quat))
-                else:
-                    required_angular_rates = Pid_Policy.action(env.sim_time, target_angles, q_to_euler(env.imu_orientation_quat))
                 
-                env.generated_input = required_angular_rates #esto es una prueba nada más
+                ##por acá yo debería calcular nuevo setpoint de acuerdo al ángulo objetivo, ángulo actual, max accel, blablabla
+                required_angular_rates = np.divide(np.subtract(target_angles,q_to_euler(env.imu_orientation_quat)),[4.608-(delta_time/1000),4.608-(delta_time/1000),4.608-(delta_time/1000)])
+                if position_or_angle_control == "att":
+
+                else:
+                    target_angles = Pid_Policy_Position.action(env.sim_time, target_position, position))
+                
+                #if PidOrNnAngles:
+                #    required_angular_rates = piAngles.action(env.sim_time, target_angles, q_to_euler(env.imu_orientation_quat))
+                #else:
+                required_angular_rates = Pid_Policy_Angles.action(env.sim_time, target_angles, q_to_euler(env.imu_orientation_quat))
+                
+                env.generated_input = required_angular_rates 
                 env.angular_rate_sp = required_angular_rates
                 
-                ac = pi.action(ob, env.sim_time, required_angular_rates, env.imu_angular_velocity_rpy)   ##asigna a ac la acción con los argumentos: entorno, tiempo de simulación, set point, imu_angular_velocity_rpy (debe ser directamente las velocidades angulares)
-               
+                #ac = np.multiply(pi.action(ob, env.sim_time, required_angular_rates, env.imu_angular_velocity_rpy),np.full(4,5))   ##asigna a ac la acción con los argumentos: entorno, tiempo de simulación, set point, imu_angular_velocity_rpy (debe ser directamente las velocidades angulares)
+                ac = pi.action(ob, env.sim_time, required_angular_rates, env.imu_angular_velocity_rpy)
+            
                 #ac = pi.action(ob, env.sim_time, env.angular_rate_sp,
                                 #env.imu_angular_velocity_rpy)   ##asigna a ac la acción con los argumentos: entorno, tiempo de simulación, set point, imu_angular_velocity_rpy (debe ser directamente las velocidades angulares)
                 
@@ -137,8 +166,10 @@ def flight(checkpoint_path,checkpoint_path_angles,env,num_trials=1,inputs=[[0,0,
                 #print(env.imu_linear_acceleration_xyz)
                 
                 #print("Ángulos según integración de velocidades angulares IMU: " + str(angles))
-                print("Ángulos según quaternión de orientación: " + str(q_to_euler(env.imu_orientation_quat)))
-                print("Ángulos objetivo configurados: " + str(target_angles))
+                
+                ##print("Ángulos según quaternión de orientación: " + str(q_to_euler(env.imu_orientation_quat)))
+                
+                #print("Ángulos objetivo configurados: " + str(target_angles))
                 
                 ob, reward, done,  _ = env.step(ac) ##entiendo que asigna a las variables ob, reward, done, _, algo que retorna el step del entorno cuando toma como argumento la acción
                                                     ##necesito buscar la función step. En base.py hay una función step, así que supongo que env siempre va a heredar de base.py. 
@@ -159,9 +190,13 @@ def flight(checkpoint_path,checkpoint_path_angles,env,num_trials=1,inputs=[[0,0,
                  
                 angles = angles + np.multiply(env.imu_angular_velocity_rpy,[delta_time/1000,delta_time/1000,delta_time/1000])   ##se asigna a 
                                                                                                                                 #angles la integración 
-                                                                                                                                #de la velocidad angular 
+                                                                                                                        #de la velocidad angular 
                                                                                                                                 #provista por la imu
-                
+                #position = position + np.multiply(env.imu_linear_acceleration_xyz,np.full(3,(delta_time/1000)^2))
+                position[0] = position[0] + env.imu_linear_acceleration_xyz[0]*((delta_time/1000)**2)
+                position[1] = position[1] + env.imu_linear_acceleration_xyz[1]*((delta_time/1000)**2)
+                position[2] = position[2] + env.imu_linear_acceleration_xyz[2]*((delta_time/1000)**2)
+
                 desired_angles = desired_angles+np.multiply(env.angular_rate_sp,[delta_time,delta_time,delta_time]) ##se asigna a desired_angles la 
                                                                                                                     #integración de velocidad angular sp
                                                                                                                     #integrada en el tiempo                
@@ -215,7 +250,7 @@ if __name__ == "__main__":
     gym_id = "gymfc_nf-step-v1"
     ckpt_path = '/home/intigpu/DroneRL/model/checkpoints/ppo1-gymfc_nf-step-v1-10003968.ckpt'
     ckpt_path_angles = '/home/intigpu/DroneRL/model/checkpoints/ppo1-gymfc_nf-step-v1-10003968.ckpt'
-    twin = "./gymfc_nf/twins/nf1/model.sdf"
+    twin = "./gymfc_nf/twins/nf1-control-completo/model.sdf"
 
 
     env = gym.make(gym_id)
