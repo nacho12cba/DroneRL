@@ -41,9 +41,10 @@ if __name__ == '__main__':
     ax_1[1].legend(loc='upper right', ncol=4)
     ax_1[1].grid(True)
     plt.figure(2)
-    fig_2,ax_2  = plt.subplots(3,sharex =True,sharey = False)
+    fig_2,ax_2  = plt.subplots(4,sharex =True,sharey = False)
     pqr_ =(fdata[:,25:28])
     pqr_sp_ = (fdata[:,28:31])
     plot_rates(ax_2[:3], t, pqr_sp_, pqr_)
+    ax_2[3].plot(t,fdata[:,24],label="reward")
     plt.show()
 

@@ -59,6 +59,7 @@ def traj_segment_generator(pi,pi_vel, env, horizon, stochastic, flight_log=None)
         target_vel =  ac_angle*env.max_rate
         error_vel = target_vel - env.imu_angular_velocity_rpy
         delta_error_vel = error_vel-last_err_vel
+        env.angular_rate_sp = target_vel
         state_angle  = np.concatenate([error_vel,delta_error_vel])
         last_err_vel = error_vel
         ac = pi_vel.action(state_angle)

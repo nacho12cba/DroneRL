@@ -50,8 +50,8 @@ class RewardEnvAngle(BaseEnvAngle):
         # Reward the agent for minimizing their control ouputs. 
         # In order to get the reward, the agent must be in the error band, 
         # otherwise the agent will just output zero.
-        min_y_reward = 0
-        # Error band is minimum 5 deg/s, maximum 10% of angular rate sp
+        min_y_reward = np.sum(-np.abs(self.angular_rate_sp))
+        # # Error band is minimum 5 deg/s, maximum 10% of angular rate sp
         # threshold = np.maximum(np.abs(self.angle_sp) * 0.1, np.array([5]*3)) 
         # inband = (np.abs(self.true_error) <= threshold).all()
         # percent_idle = 0.12 #should be about 12%, different for every aircraft
@@ -86,7 +86,7 @@ class RewardEnvAngle(BaseEnvAngle):
 
         return np.sum(rewards)
 
-    def excesive_angle_error(self,penalty = 1e9):
+    def excesive_angle_error(self,penalty = 1e6):
         total_penalty = 0
         for e in self.true_error:
             if np.abs(e) > 100:
