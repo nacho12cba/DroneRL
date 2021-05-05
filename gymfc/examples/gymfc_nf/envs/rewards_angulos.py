@@ -34,24 +34,24 @@ class RewardEnvAngle(BaseEnvAngle):
     def compute_reward(self):
 
         shaping = \
-            -np.sum(np.absolute(self.true_error)**2)
+            -np.sum(self.true_error**2)
         
         e_penalty = 0
         if self.prev_shaping is not None:
-            e_penalty = shaping + self.prev_shaping
-        if(self.prev_shaping == None):
-            self.prev_shaping = shaping
-        else:
-            self.prev_shaping += shaping
+            e_penalty = shaping 
+        # if(self.prev_shaping == None):
+        self.prev_shaping = shaping
+        # else:
+        #     self.prev_shaping += shaping
         for x in self.true_error:
             if(np.abs(x)<0.1):
-                e_penalty += 10
+                e_penalty += 100
 
         # Reward the agent for minimizing their control ouputs. 
         # In order to get the reward, the agent must be in the error band, 
         # otherwise the agent will just output zero.
-        min_y_reward = 0
-        # Error band is minimum 5 deg/s, maximum 10% of angular rate sp
+        min_y_reward = np.sum(-np.abs(self.angular_rate_sp))
+        # # Error band is minimum 5 deg/s, maximum 10% of angular rate sp
         # threshold = np.maximum(np.abs(self.angle_sp) * 0.1, np.array([5]*3)) 
         # inband = (np.abs(self.true_error) <= threshold).all()
         # percent_idle = 0.12 #should be about 12%, different for every aircraft
@@ -76,13 +76,22 @@ class RewardEnvAngle(BaseEnvAngle):
             e_penalty,
             # penalty for oversaturating the control output, without this 
             # the agent tends to generate binary outputs, i.e., [-1, 1].
-            -1e9 * np.sum(self.oversaturation_high()),
+            # -1e9 * np.sum(self.oversaturation_high()),
+            0,
             # penalty if the agent does nothing, i.e., refusing to 'play'
-            self.doing_nothing_penalty()
+            # self.doing_nothing_penalty()
+            self.excesive_angle_error()
         ]
         self.ind_rewards = rewards
 
         return np.sum(rewards)
+
+    def excesive_angle_error(self,penalty = 1e6):
+        total_penalty = 0
+        for e in self.true_error:
+            if np.abs(e) > 100:
+                total_penalty -=penalty
+        return total_penalty
 
     def doing_nothing_penalty(self, penalty=1e9):
         total_penalty = 0 

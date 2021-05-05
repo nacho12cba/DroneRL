@@ -491,7 +491,7 @@ aircraft_plugin_dir)
         if self.verbose:
             p = subprocess.Popen(["gzserver", "--verbose", target_world], shell=False, env=container_env) 
         else:
-            p = subprocess.Popen(["gzserver", "--verbose", target_world], shell=False, env=container_env) 
+            p = subprocess.Popen(["gzserver", target_world], shell=False, env=container_env) 
         self.env = container_env
         with open(os.path.join(os.path.dirname(__file__),'enviroment_gazebo.txt'), 'w+') as file:
             file.write(json.dumps(container_env))

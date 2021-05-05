@@ -30,6 +30,14 @@ def flight(checkpoint_path,env,num_trials=1,inputs=[[0,0,0]]):
                                             clear_devices=True)
         saver.restore(sess, checkpoint_path)
         pi = PpoBaselinesPolicy(sess)
+        # graph=tf.get_default_graph()
+        # graph_def = tf.GraphDef()
+        # with tf.gfile.GFile(proto_buf_path, 'rb') as fid:
+        #     graph_def.ParseFromString(fid.read())
+        #     tf.import_graph_def(graph_def, name='')
+        #     x = graph.get_tensor_by_name('pi/ob:0') 
+        #     y = graph.get_tensor_by_name('pi/pol/final/BiasAdd:0')
+        print(tf.trainable_variables())
 
         es = []
         rs = []
@@ -52,6 +60,7 @@ def flight(checkpoint_path,env,num_trials=1,inputs=[[0,0,0]]):
             while True:
                 ac = pi.action(ob, env.sim_time, env.angular_rate_sp,
                                 env.imu_angular_velocity_rpy)
+                # ac = sess.run(y, feed_dict={x:[ob] })[0]
                 ob, reward, done,  _ = env.step(ac)
 
                 # TODO (wfk) Should we standardize this log format? We could
@@ -98,9 +107,9 @@ if __name__ == "__main__":
     seed = np.random.randint(0, 1e6) if seed_in < 0 else seed_in
 
     gym_id = "gymfc_nf-step-v1"
-    ckpt_path = '/home/puriqgpu/DroneRL/model/checkpoints/ppo1-gymfc_nf-step-v1-9902592.ckpt'
+    ckpt_path = '/home/puriqgpu/DroneRL/models/baselines_ef9da8f_20210504-172727/checkpoints/ppo1-gymfc_nf-step-v2-5712528.ckpt'
     twin = "./gymfc_nf/twins/nf1/model.sdf"
-
+    proto_buf_path = '/home/puriqgpu/DroneRL/neuroflight/gen/graph/frozen_model.pb'
 
     env = gym.make(gym_id)
     env.seed(seed)

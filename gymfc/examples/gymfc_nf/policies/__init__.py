@@ -1,4 +1,5 @@
 
 from gymfc_nf.policies.pidpolicy import PidPolicy
 from gymfc_nf.policies.baselinespolicy import PpoBaselinesPolicy
-__all__ = ['PidPolicy', 'PpoBaselinesPolicy']
+from gymfc_nf.policies.baselinespolicy_angle import PpoBaselinesPolicyAngle
+__all__ = ['PidPolicy', 'PpoBaselinesPolicy', 'PpoBaselinesPolicyAngle']

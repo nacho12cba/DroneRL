@@ -49,7 +49,7 @@ class BaseEnv(FlightControlEnv, gym.Env):
         # parameter containing the class reference
         self.step_callback = None
 
-    def set_aircraft_model(self, model):
+    def set_aircraft_model(self, model,aircraft_config = None):
         """Set the aircraft's model.sdf
         
         Args:
@@ -62,7 +62,7 @@ class BaseEnv(FlightControlEnv, gym.Env):
         # registration, we finish the configuration after the environment is 
         # created. When gymfc is created it will dynamically load the 
         # digital twin at the same time.
-        super().__init__(aircraft_config=model)
+        super().__init__(aircraft_config=model,config_filepath=aircraft_config)
 
     def step(self, action):
         """Step the simulator and apply the provided action. 

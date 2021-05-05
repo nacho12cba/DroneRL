@@ -5,6 +5,7 @@ from gym import spaces
 from gym.utils import seeding
 from gymfc.envs.fc_env import FlightControlEnv
 import time
+from gymfc.tools.quaternion_to_angle import quaternion_to_angles
 
 class BaseEnvAngle(FlightControlEnv, gym.Env):
     def __init__(self, max_sim_time = 30, state_fn = None): 
@@ -29,14 +30,14 @@ class BaseEnvAngle(FlightControlEnv, gym.Env):
 
         # Instance of the RNG used for all derived classes
         self.np_random = None
-
+        self.angle_anterior = [0,0,0]
         # Init all of the variables for the simulation
         self._init()
+        self.min_reward = -1e8
 
-        self.angle_anterior = [0,0,0]
 
         # Define the Gym action and observation spaces
-        self.action_space = spaces.Box(-np.ones(4), np.ones(4), dtype=np.float32)
+        self.action_space = spaces.Box(-np.ones(3), np.ones(3), dtype=np.float32)
         self.action = self.action_space.low 
         num_inputs = len(self.state_fn(self))
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(num_inputs,), 
@@ -51,7 +52,7 @@ class BaseEnvAngle(FlightControlEnv, gym.Env):
         # parameter containing the class reference
         self.step_callback = None
 
-    def set_aircraft_model(self, model):
+    def set_aircraft_model(self, model,aircraft_config = None):
         """Set the aircraft's model.sdf
         
         Args:
@@ -64,7 +65,7 @@ class BaseEnvAngle(FlightControlEnv, gym.Env):
         # registration, we finish the configuration after the environment is 
         # created. When gymfc is created it will dynamically load the 
         # digital twin at the same time.
-        super().__init__(aircraft_config=model)
+        super().__init__(aircraft_config=model,config_filepath=aircraft_config)
 
     def step(self, action):
         """Step the simulator and apply the provided action. 
@@ -83,7 +84,7 @@ class BaseEnvAngle(FlightControlEnv, gym.Env):
         # Interface with gymfc
         self.obs = self.step_sim(self.y)
 
-        angle_rpy = self.quaternion_to_angles()
+        angle_rpy = quaternion_to_angles(self.imu_orientation_quat,self.angle_anterior)
         # self.angular_rate = (self.imu_angular_velocity_rpy.copy() + 
         #     self.sample_noise(self))
         # angles_with_noise = angle_rpy +self.sample_noise(self)
@@ -92,9 +93,9 @@ class BaseEnvAngle(FlightControlEnv, gym.Env):
         # self.measured_error = self.angular_rate_sp - self.angular_rate
         self.measured_error = self.angle_sp - angle_rpy
 
-        done = self.sim_time >= self.max_sim_time 
-
         reward = self.compute_reward()
+
+        done = (self.sim_time >= self.max_sim_time) or (reward < self.min_reward) or (np.abs(angle_rpy)>=np.ones(3)*170).any()
 
         # Generate the next setpoint
         self.update_setpoint()
@@ -111,29 +112,7 @@ class BaseEnvAngle(FlightControlEnv, gym.Env):
         self.angle_anterior = angle_rpy
         return state, reward, done, {}
 
-    def quaternion_to_angles(self):
-        x = self.imu_orientation_quat[1]
-        y = self.imu_orientation_quat[2]
-        z = self.imu_orientation_quat[3]
-        w = self.imu_orientation_quat[0]
-        X_ant = self.angle_anterior[0]
-        Y_ant = self.angle_anterior[1]
-        Z_ant = self.angle_anterior[2]
-        import math
-        t0 = +2.0 * (w * x + y * z)
-        t1 = +1.0 - 2.0 * (x * x + y * y)
-        X = math.degrees(math.atan2(t0, t1))
-        
-        t2 = +2.0 * (w * y - z * x)
-        t2 = +1.0 if t2 > +1.0 else t2
-        t2 = -1.0 if t2 < -1.0 else t2
-        Y = math.degrees(math.asin(t2))
 
-        t3 = +2.0 * (w * z + x * y)
-        t4 = +1.0 - 2.0 * (y * y + z * z)
-        Z = math.degrees(math.atan2(t3, t4))
-
-        return [X, Y, Z]
 
     def action_to_control_signal(self, action, action_low, action_high, 
                                  y_low=0, y_high=1):
@@ -168,6 +147,8 @@ class BaseEnvAngle(FlightControlEnv, gym.Env):
         # True error is used for computing rewards
         self.true_error = np.zeros(3)
         self.imu_angular_velocity_rpy = np.zeros(3)
+        self.angle_anterior = [0,0,0]
+        self.min_reward = -1e8
         #self.imu_orientation_quat = np.array([0, 0, 0, 1])
 
         # Keep track of the number of steps so we can determine how many steps
@@ -177,6 +158,8 @@ class BaseEnvAngle(FlightControlEnv, gym.Env):
     def reset(self):
         self._init()
         self.obs = super().reset()
+
+        self.angle_anterior = [0,0,0]
 
         return self.state_fn(self)
 
