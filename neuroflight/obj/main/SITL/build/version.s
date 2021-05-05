@@ -1,0 +1,142 @@
+	.file	"version.c"
+	.section	.gnu.lto_.profile.31f876b0e4f8f369,"e",@progbits
+	.string	"x\234cc`b`d"
+	.string	"\002"
+	.string	""
+	.string	"R"
+	.ascii	"\n"
+	.text
+	.section	.gnu.lto_.icf.31f876b0e4f8f369,"e",@progbits
+	.string	"x\234cc`b\220d@"
+	.string	"\026\206\345-\033e\030\273\276\236\233\302\3114o\352\325\007\334\314\267\236\236\235\306\313"
+	.string	""
+	.ascii	"\215\277\0130"
+	.text
+	.section	.gnu.lto_.inline.31f876b0e4f8f369,"e",@progbits
+	.string	"x\234cc`\002Bd"
+	.string	""
+	.string	""
+	.string	"\272"
+	.ascii	"\013"
+	.text
+	.section	.gnu.lto_.pureconst.31f876b0e4f8f369,"e",@progbits
+	.string	"x\234cc`b`d"
+	.string	"\002"
+	.string	""
+	.string	"R"
+	.ascii	"\n"
+	.text
+	.section	.gnu.lto_buildTime.31f876b0e4f8f369,"e",@progbits
+	.string	"x\234cc`b0b``Pg\200\200\031\314\214\347o\234?\307\244\3104\277a\206\302\002f\260\310\267\205\237\233\030\353\3776\314hhx\360\371\003\253\307\002fF\306\355\214\212\f\f\214;\030\353\0318\rM\254\214M\255\f\314\030\244\365\364\213\213\222\365s\0233\363\364\223J3sR\364\313R\213\2123\363\363\364\222\031"
+	.ascii	"\362\262\037."
+	.text
+	.section	.gnu.lto_buildDate.31f876b0e4f8f369,"e",@progbits
+	.string	"x\234cc`b0d``\320b\200\200\031\314\214\347\267\336vPd\232\3370Ca\0013X\340\333\343k\275\334\365\177\033f44<\370\377\200\325c\0013#\343vFE\006\006\306\035\214\365\f<\216\005E\n\nF\nF\006F\206\f\322z\372\305E\311\372\271\211\231y\372I\245\2319)\372e\251E\305\231\371yz\311\f"
+	.ascii	"$\b\037\225"
+	.text
+	.section	.gnu.lto_shortGitRevision.31f876b0e4f8f369,"e",@progbits
+	.string	"x\234cc`b0b``\320`\200\200\031\314\214\377\227M\330\304\253\3104\277a\206\302\002f\260H\333\232\306\375L\365\177\033f44<\370~\201\325\177\0013#\343vFE\006\006\306\035\214\365\f\\\346iIIi\006)\346I\f\322z\372\305E\311\372\271\211\231y\372I\245\2319)\372e\251E\305\231\371yz\311\f"
+	.ascii	"\353\207\037}"
+	.text
+	.section	.gnu.lto_.symbol_nodes.31f876b0e4f8f369,"e",@progbits
+	.string	"x\234cc`bPb"
+	.string	"\002VV\206F\020\203\225\205\021B33Ah&f0\315"
+	.string	""
+	.string	"7"
+	.ascii	"\002\337"
+	.text
+	.section	.gnu.lto_.refs.31f876b0e4f8f369,"e",@progbits
+	.string	"x\234cc`b`d"
+	.string	"\002"
+	.string	""
+	.string	"R"
+	.ascii	"\n"
+	.text
+	.section	.gnu.lto_.decls.31f876b0e4f8f369,"e",@progbits
+	.string	"x\234}\224KLSA\024\206\347\364\266Z.\027Q\342\302h\027\272 aE%\256Xi\242\211\032\rF\305\225\253\212\2154\021MJee\342\005Y\240\304\b\211\232\n( \240\013\3004\022\345Qj\021y\025_\274\004\013-\266\325\020_<E\036\n\342\231\271S\241\2202\351\351\275g\316\231o\376\3763\351\006\242\"\2074\204\\&\204Ta,\341P\343\323EB\007\235k\301h\303\350\300\350YU\277\006\004I\204\364c\f\220\360\343\006\357\363`x\327\351\313\347}~\214\300:}V\001\036\347\017\f\212\202\n\350{\201}\272SsS\200\030\021\264\230\326\216U\326Fa\272U\204&Zn\253\231\315\334(H\254u\330\331lW\305W\311\312\320\036#\320"
+	.string	"B\220\371~\316\361[\022v\323F\365\217\312\211\373\321 \306\351"
+	.string	"\360\223C\273'Jea\033\201=:\330\255#\360\034\342\300\001\"!\340\304\216&\320\221\207A*\241\005h\344`\034\0052\005t\003[\300\222\211\275\354\0357\365</\374,\211|\203\234u7\300\356\212\031\307\254V\272.\313YrI\226\274%3\001^\340V\365\330P\207\r\004\232A\342?f\374W\357\\t\2603g\275N\177\377\325\304\3302\331\326,7\215\217DV\225\313r\002\274\004\tjA"
+	.ascii	";\304\257XCg\216\250\b\264@,\256\373\370\275\346\227 \034g\276"
+	.ascii	"\272m\217b9c\352\201Jn\001Fh]Ch\345\2046Fxz\3077\252\025N3\302"
+	.ascii	"\247\241\311\200\300\021\337\226\021\355k\020\355\034\321\301"
+	.ascii	"\020\335\331\266\"A9{5\246/~.M\251\0247\271?1+\177t'\363S\257"
+	.ascii	"\003\227b\247\253\274aARVk0-\374\351\375\032\241\334\2348z\307"
+	.ascii	"*\275ERL\036\205\341\327>v|\360\032a\257\030\354\r\304\004\221"
+	.ascii	"\224U\346\266:\265\273\316\027\313\326\235\254\204S\203\255\266"
+	.ascii	"yU\310ia"
+	.string	"a\205\234w\377\317\240d\254z^\274\262([Qw\215KM+\360\026v\261Z\300\266pS\020\314\314%\353d\300!q\227>/\273\324\275\306%:\323\005W\b\3640\233\356M/\366\251\303\373\322\033\364\245N\361\245\362YE\003(\276D`\232\333\372\264MP|\351\240\345\236\352\231F\315jc\336#\255\217\321\372\2311\214\311\022\352l\261\363I\350\275\355\017qb@q\202>\261{\300\235]\317\267\217\304\324\227W\367}Sx\361\356\240\370\017\212\370?_n\271\371j\n\313\262\273\363\243\025\361>Znw\334\370\033\265Z\374\020\322\006\031\315\303\304\273\025\361\036&\276\376\356\337\333\221!\342=!\342\275\\\274\227\355\347\354\264\217F\204W;\034T\333\247\250]\234\350Z\344WP\304\264w\2444[R\324v\261\377\266\351.\237\270Z\255\017i\037\031\315\317\324\016+j\375LmuAnwt\210Z\177\210\332"
+	.ascii	"WK\237\021g.\231\316\237M6\245\031\267\307\353\323\315)\3724"
+	.ascii	"\203\351\202\236M\3523\214\346t\323\305\013\361)\332\203I\247"
+	.ascii	"v\356OL$\352\224T\203yG\370F\216;`\260\0307\247\247^4[\016\232"
+	.ascii	",'\214\031&Z\325\234<\234|\224\210\026\203\371\234\321\222dH"
+	.ascii	"3\376\003ro\307:"
+	.text
+	.section	.gnu.lto_.symtab.31f876b0e4f8f369,"e",@progbits
+	.string	"buildTime"
+	.string	""
+	.string	""
+	.string	""
+	.string	""
+	.string	""
+	.string	""
+	.string	""
+	.string	""
+	.string	""
+	.string	""
+	.string	""
+	.string	"\304"
+	.string	""
+	.string	""
+	.string	"buildDate"
+	.string	""
+	.string	""
+	.string	""
+	.string	""
+	.string	""
+	.string	""
+	.string	""
+	.string	""
+	.string	""
+	.string	""
+	.string	""
+	.string	"\306"
+	.string	""
+	.string	""
+	.string	"shortGitRevision"
+	.string	""
+	.string	""
+	.string	""
+	.string	""
+	.string	""
+	.string	""
+	.string	""
+	.string	""
+	.string	""
+	.string	""
+	.string	""
+	.string	"\310"
+	.string	""
+	.string	""
+	.string	"targetName"
+	.string	""
+	.string	""
+	.string	""
+	.string	""
+	.string	""
+	.string	""
+	.string	""
+	.string	""
+	.string	""
+	.string	""
+	.string	""
+	.string	"\322"
+	.string	""
+	.string	""
+	.text
+	.section	.gnu.lto_.opts,"e",@progbits
+	.string	"'-fno-math-errno' '-fno-signed-zeros' '-fno-trapping-math' '-fno-trapv' '-fno-openmp' '-fno-openacc' '-mtune=generic' '-march=x86-64' '-Ofast' '-ffunction-sections' '-fdata-sections' '-flto' '-fuse-linker-plugin' '-ffast-math' '-fstack-protector-strong'"
+	.text
+	.comm	__gnu_lto_v1,1,1
+	.comm	__gnu_lto_slim,1,1
+	.ident	"GCC: (Ubuntu 7.5.0-3ubuntu1~18.04) 7.5.0"
+	.section	.note.GNU-stack,"",@progbits

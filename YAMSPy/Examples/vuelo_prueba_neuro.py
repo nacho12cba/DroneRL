@@ -7,6 +7,7 @@ import numpy as np
 import socket
 import struct
 import threading
+import os
 
 
 
@@ -51,11 +52,11 @@ class HiloComandos(threading.Thread):
                 self.CMDS['aux1'] = 1500
                 print('Arming Drone')
                 self.armed = True
-            if(now>7 and now<15):
+            if(now>5.2 and self.armed and now<15):
                 self.CMDS['throttle'] = 1270
                 print('Flying up')
             if(now>15 and now<25):
-                self.CMDS['yaw'] = 1600
+                self.CMDS['yaw'] = 1800
                 self.CMDS['throttle'] = 1290
                 print('hovering')
             # if(now>16 and now<17):
@@ -69,14 +70,14 @@ class HiloComandos(threading.Thread):
             #     self.CMDS['yaw'] = 1600
             #     self.CMDS['throttle'] = 1290
             #     print('hovering')
-            if(now>25 and now<29):
+            if(now>25 and now<35):
                 self.CMDS['yaw'] = 1500
                 self.CMDS['throttle'] = 1260
                 print('going down')
-            if(now>29 and now<30):
+            if(now>35 and now<37):
                 self.CMDS['aux1'] = 1000
                 print('Disarming Drone')
-            if(now>30):
+            if(now>37):
                 break
 
 def quaternion_to_euler(x, y, z, w):
@@ -119,7 +120,7 @@ class HiloDatos(threading.Thread):
                 for index, key in enumerate(flight_metrics.keys()):
                     if(index>0):
                         flight_metrics[key].append(sensor_data[index])
-            if(now>30):
+            if(now>37):
                 break
 
         
@@ -260,6 +261,8 @@ if __name__ =='__main__':
         plt.subplot(3,1,index+1)
         plt.plot(np.array(flight_metrics['time']),np.array(angulos_de_orientacion[key]))
     plt.show()
+
+    os.system('rm MSPy.log')
 
 
         

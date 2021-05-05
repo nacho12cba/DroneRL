@@ -1,6 +1,6 @@
 cd gymfc/examples/
 python3 sim_nf1_gazebo.py
-sleep 4
+sleep 6
 cd ../../neuroflight
 ./obj/main/neuroflight_SITL.elf
 cd ../
