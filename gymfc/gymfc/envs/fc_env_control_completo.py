@@ -104,7 +104,7 @@ class ActionProtocol:
         loop = asyncio.get_event_loop()
         loop.stop()
 
-class FlightControlEnv(ABC):
+class FlightControlEnvControlCompleto(ABC):
     """ A generic OpenAI flight control gym environment.
     
     This class must be extended to implement the task whether for 

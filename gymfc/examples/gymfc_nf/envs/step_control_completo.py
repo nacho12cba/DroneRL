@@ -3,9 +3,9 @@ import numpy as np
 import gym
 from gym import spaces
 from gym.utils import seeding
-from gymfc.envs.fc_env_control_completo import FlightControlEnv
+from gymfc.envs.fc_env_control_completo import FlightControlEnvControlCompleto
 import time
-from .rewards import RewardEnv
+from .rewards import RewardEnvControlCompleto
 
 class StepEnv(RewardEnv): 
     def __init__(self, pulse_width = 1, max_rate = 100, state_fn = None,

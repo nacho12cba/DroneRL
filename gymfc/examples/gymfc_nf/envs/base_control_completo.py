@@ -3,10 +3,10 @@ import numpy as np
 import gym
 from gym import spaces
 from gym.utils import seeding
-from gymfc.envs.fc_env_control_completo import FlightControlEnv
+from gymfc.envs.fc_env_control_completo import FlightControlEnvControlCompleto
 import time
 
-class BaseEnv(FlightControlEnv, gym.Env):
+class BaseEnvControlCompleto(FlightControlEnvControlCompleto, gym.Env):
     def __init__(self, max_sim_time = 30, state_fn = None): 
         """ Create a base gymfc environment.
 

@@ -1,7 +1,7 @@
 <?xml version='1.0'?>
 <sdf version='1.6'>
 
-  <model name='nf1'>
+  <model name='nf1-control-completo'>
     <!-- a plugin with this filename is required -->
     <plugin name="config" filename="libAircraftConfigPluginControlCompleto.so">
         <motorCount>4</motorCount>

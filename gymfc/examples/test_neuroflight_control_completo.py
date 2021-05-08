@@ -6,7 +6,7 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 import tensorflow as tf
 tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)    #(tf.logging.ERROR)
 import gym
-from gymfc_nf.envs import *
+from gymfc_nf.envs.base_control_completo import BaseEnvControlCompleto
 from gymfc_nf.utils.monitor import CheckpointMonitor
 from gymfc_nf.utils.log import make_header
 from gymfc_nf.policies import PpoBaselinesPolicy
@@ -144,10 +144,10 @@ def flight(checkpoint_path,checkpoint_path_angles,env,num_trials=1,inputs=[[0,0,
                 ##por acá yo debería calcular nuevo setpoint de acuerdo al ángulo objetivo, ángulo actual, max accel, blablabla
                 required_angular_rates = np.divide(np.subtract(target_angles,q_to_euler(env.imu_orientation_quat)),[4.608-(delta_time/1000),4.608-(delta_time/1000),4.608-(delta_time/1000)])
                 if position_or_angle_control == "att":
-
+                    pass
                 else:
-                    target_angles = Pid_Policy_Position.action(env.sim_time, target_position, position))
-                
+                    target_angles = Pid_Policy_Position.action(env.sim_time, target_position, position)
+
                 #if PidOrNnAngles:
                 #    required_angular_rates = piAngles.action(env.sim_time, target_angles, q_to_euler(env.imu_orientation_quat))
                 #else:

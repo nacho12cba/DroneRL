@@ -25,6 +25,17 @@ register(
     }
 )
 
+register(
+    id= "gymfc_nf-step-v3",
+    entry_point='gymfc_nf.envs.step:StepEnvControlCompleto',
+    kwargs={
+        "max_rate": 100,
+        "state_fn":state_degrees_error_deltaerror,
+        "pulse_width":10.048,
+        "max_sim_time": 15.608
+    }
+)
+
 
 register(
     id="gymfc_nf-continuous-v1",
